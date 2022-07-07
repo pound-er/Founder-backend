@@ -79,7 +79,7 @@ class MagazineContent(models.Model):
 
 
 class Brand(models.Model):
-    magazine_content = models.ForeignKey(MagazineContent, on_delete=models.CASCADE, related_name='magazinecontent_brand')
+    magazine_content = models.ForeignKey(MagazineContent, null=True, on_delete=models.SET_NULL, related_name='magazinecontent_brand')
 
     brand_name = models.CharField(max_length=20)
     brand_logo = models.URLField()
