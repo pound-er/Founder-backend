@@ -52,6 +52,42 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['nickname']
 
 
+class Magazine(models.Model):
+
+    MAGAZINE_CHOICE = [
+        ('Founder Story', 'Founder Story'),
+        ('Daily Curation', 'Daily Curation'),
+    ]
+
+    title = models.CharField(max_length=100)
+    author = models.CharField(max_length=20)
+    tag_arr = models.TextField(null=True)
+    created_at = models.DateTimeField()
+    episode_num = models.IntegerField(null=True)
+    main_img = models.URLField()
+    magazine_type = models.CharField(max_length=20, choices=MAGAZINE_CHOICE)
+    intro_title = models.TextField()
+    intro_content = models.TextField()
+
+
+class MagazineContent(models.Model):
+    magazine = models.ForeignKey(Magazine, on_delete=models.CASCADE, related_name='magazine_magazinecontent')
+
+    detail_title = models.CharField(max_length=100, null=True)
+    detail_content = models.TextField(null=True)
+    detail_img = models.URLField(null=True)
+
+
+class Brand(models.Model):
+    magazine_content = models.ForeignKey(MagazineContent, null=True, on_delete=models.SET_NULL, related_name='magazinecontent_brand')
+
+    brand_name = models.CharField(max_length=20)
+    brand_logo = models.URLField()
+    brand_link = models.URLField()
+    brand_desc = models.TextField()
+    brand_bg_img = models.URLField()
+
+
 class Category(models.Model):
 
     CATEGORY_CHOICE = [
@@ -111,7 +147,7 @@ class Product(models.Model):
     ]
 
     type = models.ForeignKey(Type, on_delete=models.CASCADE, related_name='type_product')
-    brand = models.ForeignKey(Type, on_delete=models.CASCADE, related_name='brand_product')
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='brand_product')
 
     product_name = models.CharField(max_length=20)
     product_main_img = models.URLField()
@@ -169,39 +205,3 @@ class SurveyResult(models.Model):
     type = models.ForeignKey(Type, on_delete=models.CASCADE, related_name='type_surveyresult')
 
     rec_result = models.BooleanField(null=True, default=False)
-
-
-class Magazine(models.Model):
-
-    MAGAZINE_CHOICE = [
-        ('Founder Story', 'Founder Story'),
-        ('Daily Curation', 'Daily Curation'),
-    ]
-
-    title = models.CharField(max_length=100)
-    author = models.CharField(max_length=20)
-    tag_arr = models.TextField(null=True)
-    created_at = models.DateTimeField()
-    episode_num = models.IntegerField(null=True)
-    main_img = models.URLField()
-    magazine_type = models.CharField(max_length=20, choices=MAGAZINE_CHOICE)
-    intro_title = models.TextField()
-    intro_content = models.TextField()
-
-
-class MagazineContent(models.Model):
-    magazine = models.ForeignKey(Magazine, on_delete=models.CASCADE, related_name='magazine_magazinecontent')
-
-    detail_title = models.CharField(max_length=100, null=True)
-    detail_content = models.TextField(null=True)
-    detail_img = models.URLField(null=True)
-
-
-class Brand(models.Model):
-    magazine_content = models.ForeignKey(MagazineContent, on_delete=models.CASCADE, related_name='magazinecontent_brand')
-
-    brand_name = models.CharField(max_length=20)
-    brand_logo = models.URLField()
-    brand_link = models.URLField()
-    brand_desc = models.TextField()
-    brand_bg_img = models.URLField()
