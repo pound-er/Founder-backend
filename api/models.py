@@ -79,7 +79,7 @@ class MagazineContent(models.Model):
 
 
 class Brand(models.Model):
-    magazine_content = models.ForeignKey(MagazineContent, null=True, on_delete=models.SET_NULL, related_name='magazinecontent_brand')
+    magazine_content = models.ForeignKey(MagazineContent, null=True, blank=True, on_delete=models.SET_NULL, related_name='magazinecontent_brand')
 
     brand_name = models.CharField(max_length=20)
     brand_logo = models.URLField()
@@ -205,3 +205,8 @@ class SurveyResult(models.Model):
     type = models.ForeignKey(Type, on_delete=models.CASCADE, related_name='type_surveyresult')
 
     rec_result = models.BooleanField(null=True, default=False)
+
+class Survey(models.Model):
+    question_num = models.IntegerField()
+    answer_num = models.IntegerField()
+    type_arr = models.TextField()
