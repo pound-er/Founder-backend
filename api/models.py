@@ -217,8 +217,14 @@ class SurveyResult(models.Model):
 
     rec_result = models.BooleanField(null=True, default=False)
 
+    def __str__(self):
+        return '[{}] {}...{}'.format(self.user_id, self.type_id, self.rec_result)
+
 
 class Survey(models.Model):
     question_num = models.IntegerField()
     answer_num = models.IntegerField()
     type_arr = models.TextField()
+
+    def __str__(self):
+        return '[{}] {}'.format(self.question_num, self.answer_num)
