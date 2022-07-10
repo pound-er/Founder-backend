@@ -2,6 +2,22 @@ from django.db import models
 from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager, PermissionsMixin)
 
 
+def magazine_path(instance, filename):
+    return f'magazine/{instance.title}/{filename}'
+
+
+def brand_path(instance, filename):
+    return f'brand/{instance.brand_name}/{filename}'
+
+
+def product_path(instance, filename):
+    return f'product/{instance.product_name}/{filename}'
+
+
+def review_path(instance, filename):
+    return f'review/{instance.product.product_name}/{instance.user.name}/{filename}'
+
+
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
@@ -64,7 +80,7 @@ class Magazine(models.Model):
     tag_arr = models.TextField(null=True)
     created_at = models.DateTimeField()
     episode_num = models.IntegerField(null=True)
-    main_img = models.URLField()
+    main_img = models.ImageField(upload_to=magazine_path, blank=True, null=True)
     magazine_type = models.CharField(max_length=20, choices=MAGAZINE_CHOICE)
     intro_title = models.TextField()
     intro_content = models.TextField()
@@ -75,17 +91,17 @@ class MagazineContent(models.Model):
 
     detail_title = models.CharField(max_length=100, null=True)
     detail_content = models.TextField(null=True)
-    detail_img = models.URLField(null=True)
+    detail_img = models.ImageField(upload_to=magazine_path, blank=True, null=True)
 
 
 class Brand(models.Model):
     magazine_content = models.ForeignKey(MagazineContent, null=True, blank=True, on_delete=models.SET_NULL, related_name='magazinecontent_brand')
 
     brand_name = models.CharField(max_length=20)
-    brand_logo = models.URLField()
+    brand_logo = models.ImageField(upload_to=brand_path, blank=True, null=True)
     brand_link = models.URLField()
     brand_desc = models.TextField()
-    brand_bg_img = models.URLField()
+    brand_bg_img = models.ImageField(upload_to=brand_path, blank=True, null=True)
 
 
 class Category(models.Model):
@@ -150,7 +166,7 @@ class Product(models.Model):
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='brand_product')
 
     product_name = models.CharField(max_length=20)
-    product_main_img = models.URLField()
+    product_main_img = models.ImageField(upload_to=product_path, blank=True, null=True)
     custom_flag = models.BooleanField(default=False)
     delivery_cycle_main = models.CharField(max_length=20, choices=DELIVERY_CHOICE)
     delivery_cycle_detail = models.TextField()
@@ -169,7 +185,7 @@ class Product(models.Model):
 class ProductMedia(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_productmedia')
 
-    product_img = models.URLField()
+    product_img = models.ImageField(upload_to=product_path, blank=True, null=True)
     img_num = models.IntegerField()
 
 
@@ -189,14 +205,14 @@ class Review(models.Model):
     star_rate = models.IntegerField(choices=RATE_CHOICE)
     review_text = models.TextField()
     review_tag_arr = models.TextField()
-    review_main_img = models.URLField(null=True)
+    review_main_img = models.ImageField(upload_to=review_path, blank=True, null=True)
     created_at = models.DateTimeField()
 
 
 class ReviewMedia(models.Model):
     review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='review_reviewmedia')
 
-    review_img = models.URLField(null=True)
+    review_img = models.ImageField(upload_to=review_path, blank=True, null=True)
     img_num = models.IntegerField(null=True)
 
 
@@ -205,6 +221,7 @@ class SurveyResult(models.Model):
     type = models.ForeignKey(Type, on_delete=models.CASCADE, related_name='type_surveyresult')
 
     rec_result = models.BooleanField(null=True, default=False)
+
 
 class Survey(models.Model):
     question_num = models.IntegerField()
