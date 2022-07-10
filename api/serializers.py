@@ -23,16 +23,9 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ProductMediaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductMedia
-        fields = '__all__'
-
-
 class ProductSerializer(serializers.ModelSerializer):
 
     review = ReviewSerializer(many=True)
-    productMedia = ProductMediaSerializer(many=True)
 
     class Meta:
         model = Product
