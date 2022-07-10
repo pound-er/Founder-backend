@@ -128,7 +128,6 @@ class Type(models.Model):
         ('Bread', 'Bread'),
         ('Chicken', 'Chicken'),
         ('CoffeeCold', 'CoffeeCold'),
-        ('CoffeeMix', 'CoffeeMix'),
         ('CoffeeBeans', 'CoffeeBeans'),
         ('CoffeeCapsule', 'CoffeeCapsule'),
         ('Tea', 'Tea'),
