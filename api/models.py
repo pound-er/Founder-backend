@@ -59,6 +59,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     nickname = models.CharField(max_length=20, unique=True)
     phone_number = models.CharField(max_length=20, unique=True)
     gender = models.CharField(max_length=20, choices=GENDER_CHOICE)
+    set_curation = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
@@ -80,7 +81,7 @@ class Magazine(models.Model):
     tag_arr = models.TextField(null=True)
     created_at = models.DateTimeField()
     episode_num = models.IntegerField(null=True)
-    main_img = models.ImageField(upload_to=magazine_path, blank=True, null=True)
+    main_img = models.ImageField(upload_to=magazine_path)
     magazine_type = models.CharField(max_length=20, choices=MAGAZINE_CHOICE)
     intro_title = models.TextField()
     intro_content = models.TextField()
@@ -98,10 +99,10 @@ class Brand(models.Model):
     magazine_content = models.ForeignKey(MagazineContent, null=True, blank=True, on_delete=models.SET_NULL, related_name='magazinecontent_brand')
 
     brand_name = models.CharField(max_length=20)
-    brand_logo = models.ImageField(upload_to=brand_path, blank=True, null=True)
+    brand_logo = models.ImageField(upload_to=brand_path)
     brand_link = models.URLField()
     brand_desc = models.TextField()
-    brand_bg_img = models.ImageField(upload_to=brand_path, blank=True, null=True)
+    brand_bg_img = models.ImageField(upload_to=brand_path)
 
 
 class Category(models.Model):
@@ -166,7 +167,8 @@ class Product(models.Model):
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='brand_product')
 
     product_name = models.CharField(max_length=20)
-    product_main_img = models.ImageField(upload_to=product_path, blank=True, null=True)
+    product_main_img = models.ImageField(upload_to=product_path)
+    product_detail_img = models.ImageField(upload_to=product_path)
     custom_flag = models.BooleanField(default=False)
     delivery_cycle_main = models.CharField(max_length=20, choices=DELIVERY_CHOICE)
     delivery_cycle_detail = models.TextField()
@@ -180,13 +182,6 @@ class Product(models.Model):
     purchase_link = models.URLField()
     main_product_flag = models.BooleanField()
     default_rec_flag = models.BooleanField()
-
-
-class ProductMedia(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_productmedia')
-
-    product_img = models.ImageField(upload_to=product_path, blank=True, null=True)
-    img_num = models.IntegerField()
 
 
 class Review(models.Model):
@@ -205,7 +200,7 @@ class Review(models.Model):
     star_rate = models.IntegerField(choices=RATE_CHOICE)
     review_text = models.TextField()
     review_tag_arr = models.TextField()
-    review_main_img = models.ImageField(upload_to=review_path, blank=True, null=True)
+    review_main_img = models.ImageField(upload_to=review_path)
     created_at = models.DateTimeField()
 
 
