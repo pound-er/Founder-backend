@@ -81,7 +81,7 @@ class Magazine(models.Model):
     tag_arr = models.TextField(null=True)
     created_at = models.DateTimeField()
     episode_num = models.IntegerField(null=True)
-    main_img = models.ImageField(upload_to=magazine_path)
+    main_img = models.ImageField(upload_to=magazine_path, null=True)
     magazine_type = models.CharField(max_length=20, choices=MAGAZINE_CHOICE)
     intro_title = models.TextField()
     intro_content = models.TextField()
@@ -99,10 +99,10 @@ class Brand(models.Model):
     magazine_content = models.ForeignKey(MagazineContent, null=True, blank=True, on_delete=models.SET_NULL, related_name='magazinecontent_brand')
 
     brand_name = models.CharField(max_length=20)
-    brand_logo = models.ImageField(upload_to=brand_path)
+    brand_logo = models.ImageField(upload_to=brand_path, null=True)
     brand_link = models.URLField()
     brand_desc = models.TextField()
-    brand_bg_img = models.ImageField(upload_to=brand_path)
+    brand_bg_img = models.ImageField(upload_to=brand_path, null=True)
 
 
 class Category(models.Model):
@@ -167,8 +167,8 @@ class Product(models.Model):
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='brand_product')
 
     product_name = models.CharField(max_length=20)
-    product_main_img = models.ImageField(upload_to=product_path)
-    product_detail_img = models.ImageField(upload_to=product_path)
+    product_main_img = models.ImageField(upload_to=product_path, null=True)
+    product_detail_img = models.ImageField(upload_to=product_path, null=True)
     custom_flag = models.BooleanField(default=False)
     delivery_cycle_main = models.CharField(max_length=20, choices=DELIVERY_CHOICE)
     delivery_cycle_detail = models.TextField()
@@ -200,7 +200,7 @@ class Review(models.Model):
     star_rate = models.IntegerField(choices=RATE_CHOICE)
     review_text = models.TextField()
     review_tag_arr = models.TextField()
-    review_main_img = models.ImageField(upload_to=review_path)
+    review_main_img = models.ImageField(upload_to=review_path, null=True)
     created_at = models.DateTimeField()
 
 
