@@ -4,5 +4,5 @@ from api import views
 app_name = 'api'
 
 urlpatterns = [
-
+    path('survey/', views.SurveyView.as_view()),
 ]
