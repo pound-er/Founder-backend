@@ -11,6 +11,7 @@ admin.site.register(Review)
 admin.site.register(ReviewMedia)
 
 admin.site.register(SurveyResult)
+admin.site.register(Survey)
 
 admin.site.register(Magazine)
 admin.site.register(MagazineContent)
