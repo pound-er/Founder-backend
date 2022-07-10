@@ -141,6 +141,7 @@ class Type(models.Model):
         ('Shaver', 'Shaver'),
         ('Lacto', 'Lacto'),
         ('Supplement', 'Supplement'),
+        ('SkinCarePack', 'SkinCarePack'),
         ('CarePack', 'CarePack'),
         ('Protein', 'Protein'),
         ('Collagen', 'Collagen'),
