@@ -115,6 +115,9 @@ class Category(models.Model):
     ]
     category_name = models.CharField(max_length=20, choices=CATEGORY_CHOICE)
 
+    def __str__(self):
+        return '{}. {}'.format(self.id, self.category_name)
+
 
 class Type(models.Model):
 
@@ -131,18 +134,16 @@ class Type(models.Model):
         ('CoffeeBeans', 'CoffeeBeans'),
         ('CoffeeCapsule', 'CoffeeCapsule'),
         ('Tea', 'Tea'),
-        ('ShampooBar', 'ShampooBar'),
         ('Pad', 'Pad'),
-        ('Soap', 'Soap'),
         ('Teeth', 'Teeth'),
-        ('Pack', 'Pack'),
+        ('Pack', 'Pack'),  # 팩
         ('Cotton', 'Cotton'),
         ('Lens', 'Lens'),
         ('Shaver', 'Shaver'),
         ('Lacto', 'Lacto'),
         ('Supplement', 'Supplement'),
-        ('SkinCarePack', 'SkinCarePack'),
-        ('CarePack', 'CarePack'),
+        ('SkinCarePack', 'SkinCarePack'),  # 스킨케어 팩
+        ('CarePack', 'CarePack'),  # 개인 맞춤 영양팩
         ('Protein', 'Protein'),
         ('Collagen', 'Collagen'),
     ]
@@ -153,6 +154,9 @@ class Type(models.Model):
     type_desc = models.CharField(max_length=100)
     type_tag_arr = models.TextField()
     order = models.IntegerField()
+
+    def __str__(self):
+        return '{}. {}'.format(self.id, self.type_name)
 
 
 class Product(models.Model):
@@ -218,7 +222,7 @@ class SurveyResult(models.Model):
     rec_result = models.BooleanField(null=True, default=False)
 
     def __str__(self):
-        return '[{}] {}...{}'.format(self.user_id, self.type_id, self.rec_result)
+        return '{}. [ {} ] {} : {}'.format(self.id, self.user.email, self.type.type_name, self.rec_result)
 
 
 class Survey(models.Model):
@@ -227,4 +231,4 @@ class Survey(models.Model):
     type_arr = models.TextField()
 
     def __str__(self):
-        return '[{}] {}'.format(self.question_num, self.answer_num)
+        return 'Q{}. {} : {}'.format(self.question_num, self.answer_num, self.type_arr)
