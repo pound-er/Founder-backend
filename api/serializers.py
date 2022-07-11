@@ -34,17 +34,12 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class TypeSerializer(serializers.ModelSerializer):
 
-    surveyResults = SurveyResultSerializer(many=True)
-    products = ProductSerializer(many=True)
-
     class Meta:
         model = Type
         fields = '__all__'
 
 
 class CategorySerializer(serializers.ModelSerializer):
-
-    types = TypeSerializer(many=True)
 
     class Meta:
         model = Category
