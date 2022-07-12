@@ -6,6 +6,13 @@ from .serializers import *
 from .models import *
 
 
+class Type4CategoryView(APIView):
+    def get(self, request, category):
+        types = Type.objects.filter(category__category_name=category)
+        serializer = TypeSerializer(types, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class SurveyView(APIView):
     def put(self, request):
         user = User.objects.get(pk=1)  # 데모데이터(admin)
