@@ -6,6 +6,16 @@ from .serializers import *
 from .models import *
 
 
+class ProductDetailView(APIView):
+    def get(self, request, pk):
+        try:
+            product = Product.objects.get(pk=pk)
+            serializer = ProductSerializer(product)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+
 class Type4CategoryView(APIView):
     def get(self, request, category):
         types = Type.objects.filter(category__category_name=category)

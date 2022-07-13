@@ -25,8 +25,6 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
 
-    review = ReviewSerializer(many=True)
-
     class Meta:
         model = Product
         fields = '__all__'
