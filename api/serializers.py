@@ -5,7 +5,7 @@ from .models import *
 class SurveyResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = SurveyResult
-        fields = '__all__'
+        fields = ['user', 'type', 'rec_result']
 
 
 class ReviewMediaSerializer(serializers.ModelSerializer):
@@ -23,16 +23,9 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ProductMediaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductMedia
-        fields = '__all__'
-
-
 class ProductSerializer(serializers.ModelSerializer):
 
     review = ReviewSerializer(many=True)
-    productMedia = ProductMediaSerializer(many=True)
 
     class Meta:
         model = Product
@@ -41,17 +34,12 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class TypeSerializer(serializers.ModelSerializer):
 
-    surveyResults = SurveyResultSerializer(many=True)
-    products = ProductSerializer(many=True)
-
     class Meta:
         model = Type
         fields = '__all__'
 
 
 class CategorySerializer(serializers.ModelSerializer):
-
-    types = TypeSerializer(many=True)
 
     class Meta:
         model = Category

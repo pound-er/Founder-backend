@@ -2,6 +2,22 @@ from django.db import models
 from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager, PermissionsMixin)
 
 
+def magazine_path(instance, filename):
+    return f'magazine/{instance.title}/{filename}'
+
+
+def brand_path(instance, filename):
+    return f'brand/{instance.brand_name}/{filename}'
+
+
+def product_path(instance, filename):
+    return f'product/{instance.product_name}/{filename}'
+
+
+def review_path(instance, filename):
+    return f'review/{instance.product.product_name}/{instance.user.name}/{filename}'
+
+
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
@@ -43,6 +59,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     nickname = models.CharField(max_length=20, unique=True)
     phone_number = models.CharField(max_length=20, unique=True)
     gender = models.CharField(max_length=20, choices=GENDER_CHOICE)
+    set_curation = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
@@ -50,6 +67,42 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['nickname']
+
+
+class Magazine(models.Model):
+
+    MAGAZINE_CHOICE = [
+        ('Founder Story', 'Founder Story'),
+        ('Daily Curation', 'Daily Curation'),
+    ]
+
+    title = models.CharField(max_length=100)
+    author = models.CharField(max_length=20)
+    tag_arr = models.TextField(null=True)
+    created_at = models.DateTimeField()
+    episode_num = models.IntegerField(null=True)
+    main_img = models.ImageField(upload_to=magazine_path, null=True)
+    magazine_type = models.CharField(max_length=20, choices=MAGAZINE_CHOICE)
+    intro_title = models.TextField()
+    intro_content = models.TextField()
+
+
+class MagazineContent(models.Model):
+    magazine = models.ForeignKey(Magazine, on_delete=models.CASCADE, related_name='magazine_magazinecontent')
+
+    detail_title = models.CharField(max_length=100, null=True)
+    detail_content = models.TextField(null=True)
+    detail_img = models.ImageField(upload_to=magazine_path, blank=True, null=True)
+
+
+class Brand(models.Model):
+    magazine_content = models.ForeignKey(MagazineContent, null=True, blank=True, on_delete=models.SET_NULL, related_name='magazinecontent_brand')
+
+    brand_name = models.CharField(max_length=20)
+    brand_logo = models.ImageField(upload_to=brand_path, null=True)
+    brand_link = models.URLField()
+    brand_desc = models.TextField()
+    brand_bg_img = models.ImageField(upload_to=brand_path, null=True)
 
 
 class Category(models.Model):
@@ -61,6 +114,9 @@ class Category(models.Model):
         ('Health', 'Health'),
     ]
     category_name = models.CharField(max_length=20, choices=CATEGORY_CHOICE)
+
+    def __str__(self):
+        return '{}. {}'.format(self.id, self.category_name)
 
 
 class Type(models.Model):
@@ -75,21 +131,19 @@ class Type(models.Model):
         ('Bread', 'Bread'),
         ('Chicken', 'Chicken'),
         ('CoffeeCold', 'CoffeeCold'),
-        ('CoffeeMix', 'CoffeeMix'),
         ('CoffeeBeans', 'CoffeeBeans'),
         ('CoffeeCapsule', 'CoffeeCapsule'),
         ('Tea', 'Tea'),
-        ('ShampooBar', 'ShampooBar'),
         ('Pad', 'Pad'),
-        ('Soap', 'Soap'),
         ('Teeth', 'Teeth'),
-        ('Pack', 'Pack'),
+        ('Pack', 'Pack'),  # 팩
         ('Cotton', 'Cotton'),
         ('Lens', 'Lens'),
         ('Shaver', 'Shaver'),
         ('Lacto', 'Lacto'),
         ('Supplement', 'Supplement'),
-        ('CarePack', 'CarePack'),
+        ('SkinCarePack', 'SkinCarePack'),  # 스킨케어 팩
+        ('CarePack', 'CarePack'),  # 개인 맞춤 영양팩
         ('Protein', 'Protein'),
         ('Collagen', 'Collagen'),
     ]
@@ -101,6 +155,9 @@ class Type(models.Model):
     type_tag_arr = models.TextField()
     order = models.IntegerField()
 
+    def __str__(self):
+        return '{}. {}'.format(self.id, self.type_name)
+
 
 class Product(models.Model):
 
@@ -111,10 +168,11 @@ class Product(models.Model):
     ]
 
     type = models.ForeignKey(Type, on_delete=models.CASCADE, related_name='type_product')
-    brand = models.ForeignKey(Type, on_delete=models.CASCADE, related_name='brand_product')
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='brand_product')
 
     product_name = models.CharField(max_length=20)
-    product_main_img = models.URLField()
+    product_main_img = models.ImageField(upload_to=product_path, null=True)
+    product_detail_img = models.ImageField(upload_to=product_path, null=True)
     custom_flag = models.BooleanField(default=False)
     delivery_cycle_main = models.CharField(max_length=20, choices=DELIVERY_CHOICE)
     delivery_cycle_detail = models.TextField()
@@ -128,13 +186,6 @@ class Product(models.Model):
     purchase_link = models.URLField()
     main_product_flag = models.BooleanField()
     default_rec_flag = models.BooleanField()
-
-
-class ProductMedia(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_productmedia')
-
-    product_img = models.URLField()
-    img_num = models.IntegerField()
 
 
 class Review(models.Model):
@@ -153,14 +204,14 @@ class Review(models.Model):
     star_rate = models.IntegerField(choices=RATE_CHOICE)
     review_text = models.TextField()
     review_tag_arr = models.TextField()
-    review_main_img = models.URLField(null=True)
+    review_main_img = models.ImageField(upload_to=review_path, null=True)
     created_at = models.DateTimeField()
 
 
 class ReviewMedia(models.Model):
     review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='review_reviewmedia')
 
-    review_img = models.URLField(null=True)
+    review_img = models.ImageField(upload_to=review_path, blank=True, null=True)
     img_num = models.IntegerField(null=True)
 
 
@@ -170,38 +221,14 @@ class SurveyResult(models.Model):
 
     rec_result = models.BooleanField(null=True, default=False)
 
-
-class Magazine(models.Model):
-
-    MAGAZINE_CHOICE = [
-        ('Founder Story', 'Founder Story'),
-        ('Daily Curation', 'Daily Curation'),
-    ]
-
-    title = models.CharField(max_length=100)
-    author = models.CharField(max_length=20)
-    tag_arr = models.TextField(null=True)
-    created_at = models.DateTimeField()
-    episode_num = models.IntegerField(null=True)
-    main_img = models.URLField()
-    magazine_type = models.CharField(max_length=20, choices=MAGAZINE_CHOICE)
-    intro_title = models.TextField()
-    intro_content = models.TextField()
+    def __str__(self):
+        return '{}. [ {} ] {} : {}'.format(self.id, self.user.email, self.type.type_name, self.rec_result)
 
 
-class MagazineContent(models.Model):
-    magazine = models.ForeignKey(Magazine, on_delete=models.CASCADE, related_name='magazine_magazinecontent')
+class Survey(models.Model):
+    question_num = models.IntegerField()
+    answer_num = models.IntegerField()
+    type_arr = models.TextField()
 
-    detail_title = models.CharField(max_length=100, null=True)
-    detail_content = models.TextField(null=True)
-    detail_img = models.URLField(null=True)
-
-
-class Brand(models.Model):
-    magazine_content = models.ForeignKey(MagazineContent, on_delete=models.CASCADE, related_name='magazinecontent_brand')
-
-    brand_name = models.CharField(max_length=20)
-    brand_logo = models.URLField()
-    brand_link = models.URLField()
-    brand_desc = models.TextField()
-    brand_bg_img = models.URLField()
+    def __str__(self):
+        return 'Q{}. {} : {}'.format(self.question_num, self.answer_num, self.type_arr)

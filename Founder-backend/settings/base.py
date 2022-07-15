@@ -124,3 +124,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# s3
+AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY')
+AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_KEY')
+AWS_REGION = env('BUCKET_REGION')
+AWS_STORAGE_BUCKET_NAME = env('BUCKET_NAME')
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME, AWS_REGION)
+
+DEFAULT_FILE_STORAGE = 'Founder-backend.settings.storages.S3DefaultStorage'
