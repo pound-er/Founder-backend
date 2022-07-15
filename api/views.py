@@ -1,9 +1,22 @@
+from django.shortcuts import redirect
+from django.conf import settings
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .serializers import *
 from .models import *
+
+
+# 인가 코드 받기
+class KakaoSignInView(APIView):
+    def get(self, request):
+        client_id = settings.KAKAO_REST_API_KEY
+        redirect_uri = settings.KAKAO_REDIRECT_URI
+
+        return redirect(
+            f'https://kauth.kakao.com/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code'
+        )
 
 
 class Type4CategoryView(APIView):
