@@ -1,6 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.http import Http404
 
 from .serializers import *
 from .models import *
@@ -51,4 +52,16 @@ class SurveyView(APIView):
 
         data = SurveyResult.objects.filter(user=user)
         serializer = SurveyResultSerializer(data, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class BrandDetailView(APIView):
+    def get_object(self, pk):
+        try:
+            return Brand.objects.get(pk=pk)
+        except Brand.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        brand = Brand.objects.get(pk=pk)
+        serializer = BrandSerializer(brand)
         return Response(serializer.data, status=status.HTTP_200_OK)
