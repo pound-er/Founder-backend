@@ -52,3 +52,12 @@ class SurveyView(APIView):
         data = SurveyResult.objects.filter(user=user)
         serializer = SurveyResultSerializer(data, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ReviewView(APIView):  # 리뷰 전체 불러 오기
+    def get(self, request, pk):  # 상품의 pk
+        reviews = Review.objects.filter(product_id=pk)
+        serializer = ReviewSerializer(reviews, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+

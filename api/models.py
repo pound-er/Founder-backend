@@ -15,7 +15,11 @@ def product_path(instance, filename):
 
 
 def review_path(instance, filename):
-    return f'review/{instance.product.product_name}/{instance.user.name}/{filename}'
+    return f'review/{instance.product.product_name}/{instance.user.email}/{filename}'
+
+
+def review_media_path(instance, filename):
+    return f'review-media/{instance.review.product.product_name}/{instance.review.user.email}/{filename}'
 
 
 class UserManager(BaseUserManager):
@@ -209,9 +213,9 @@ class Review(models.Model):
 
 
 class ReviewMedia(models.Model):
-    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='review_reviewmedia')
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='reviewMedia')
 
-    review_img = models.ImageField(upload_to=review_path, blank=True, null=True)
+    review_img = models.ImageField(upload_to=review_media_path, blank=True, null=True)
     img_num = models.IntegerField(null=True)
 
 
