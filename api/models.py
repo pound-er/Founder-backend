@@ -58,10 +58,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('Male', 'Male'),
     ]
 
-    name = models.CharField(max_length=20)
+    nickname = models.CharField(max_length=20)
     email = models.CharField(max_length=200, unique=True)
-    nickname = models.CharField(max_length=20, unique=True)
-    phone_number = models.CharField(max_length=20, unique=True)
     gender = models.CharField(max_length=20, choices=GENDER_CHOICE)
     set_curation = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
