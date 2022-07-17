@@ -15,7 +15,11 @@ def product_path(instance, filename):
 
 
 def review_path(instance, filename):
-    return f'review/{instance.product.product_name}/{instance.user.name}/{filename}'
+    return f'review/{instance.product.product_name}/{instance.user.email}/{filename}'
+
+
+def review_media_path(instance, filename):
+    return f'review-media/{instance.review.product.product_name}/{instance.review.user.email}/{filename}'
 
 
 class UserManager(BaseUserManager):
@@ -79,7 +83,7 @@ class Magazine(models.Model):
     title = models.CharField(max_length=100)
     author = models.CharField(max_length=20)
     tag_arr = models.TextField(null=True)
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
     episode_num = models.IntegerField(null=True)
     main_img = models.ImageField(upload_to=magazine_path, null=True)
     magazine_type = models.CharField(max_length=20, choices=MAGAZINE_CHOICE)
@@ -198,20 +202,20 @@ class Review(models.Model):
         (1, 1),
     ]
 
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_review')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_review')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_review', blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_review', blank=True)
 
     star_rate = models.IntegerField(choices=RATE_CHOICE)
     review_text = models.TextField()
     review_tag_arr = models.TextField()
-    review_main_img = models.ImageField(upload_to=review_path, null=True)
-    created_at = models.DateTimeField()
+    review_main_img = models.ImageField(upload_to=review_path, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class ReviewMedia(models.Model):
-    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='review_reviewmedia')
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='reviewMedia')
 
-    review_img = models.ImageField(upload_to=review_path, blank=True, null=True)
+    review_img = models.ImageField(upload_to=review_media_path, blank=True, null=True)
     img_num = models.IntegerField(null=True)
 
 
