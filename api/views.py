@@ -17,6 +17,33 @@ class Brand4TypeView(APIView):
         return Response(brand_arr, status=status.HTTP_200_OK)
 
 
+class Type4RecommendView(APIView):
+    def get(self, request):
+    
+        # 로그인 시 "맞춤 추천 Type" 정보 반환
+        '''
+        user = User.objects.get(pk=1)  # 데모데이터(admin)
+        data = SurveyResult.objects.filter(user=user).values('type')
+        type_arr = []
+        for idx in data:
+            types = Type.objects.get(pk=idx['type'])
+            serializer = TypeSerializer(types)
+            type_arr.append(serializer.data)
+        return Response(type_arr, status=status.HTTP_200_OK)
+        '''
+        
+        # 미 로그인 시 "식품 모두 다 / 스킨케어 팩 / 유산균 / 영양제 / 맞춤케어 영양제 팩" 정보 반환
+        food_types = Type.objects.filter(category__category_name="Food")  # 식품 모두
+        serializer = TypeSerializer(food_types, many=True)
+        type_arr = serializer.data
+        data = ["SkinCarePack", "Lacto", "Supplement", "CarePack"]  # 스킨케어 팩, 유산균, 영양제, 맞춤케어 영양제 팩
+        for idx in data:
+            types = Type.objects.get(type_name=idx)
+            serializer = TypeSerializer(types)
+            type_arr.append(serializer.data)
+        return Response(type_arr, status=status.HTTP_200_OK)
+
+
 class Type4CategoryView(APIView):
     def get(self, request, category_name):
         types = Type.objects.filter(category__category_name=category_name)
