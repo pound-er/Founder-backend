@@ -6,6 +6,16 @@ from .serializers import *
 from .models import *
 
 
+class ProductDetailView(APIView):
+    def get(self, request, pk):
+        try:
+            product = Product.objects.get(pk=pk)
+            serializer = ProductSerializer(product)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+
 class Brand4TypeView(APIView):
     def get(self, request, type_name):
         products = Product.objects.filter(type__type_name=type_name).values('brand')
