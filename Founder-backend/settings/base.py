@@ -134,3 +134,5 @@ AWS_STORAGE_BUCKET_NAME = env('BUCKET_NAME')
 AWS_S3_CUSTOM_DOMAIN = '%s.s3.%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME, AWS_REGION)
 
 DEFAULT_FILE_STORAGE = 'Founder-backend.settings.storages.S3DefaultStorage'
+
+SITE_ID=1
