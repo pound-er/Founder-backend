@@ -27,10 +27,14 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('DJANGO_SECRET_KEY')
 DEBUG = env('DEBUG')
+# KAKAO Oauth
+KAKAO_REST_API_KEY = env('KAKAO_REST_API_KEY')
+KAKAO_SIGNIN_REDIRECT_URI = env('KAKAO_SIGNIN_REDIRECT_URI')
+KAKAO_SIGNOUT_REDIRECT_URI = env('KAKAO_SIGNOUT_REDIRECT_URI')
+KAKAO_SECRET_KEY = env('KAKAO_SECRET_KEY')
 
 ALLOWED_HOSTS = [
-    "ec2-3-39-168-192.ap-northeast-2.compute.amazonaws.com",
-    "127.0.0.1"
+    "*"
 ]
 
 AUTH_USER_MODEL = 'api.User'
@@ -44,7 +48,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'rest_framework',
+    'rest_framework_simplejwt',
     'api',
 ]
 
@@ -128,3 +134,5 @@ AWS_STORAGE_BUCKET_NAME = env('BUCKET_NAME')
 AWS_S3_CUSTOM_DOMAIN = '%s.s3.%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME, AWS_REGION)
 
 DEFAULT_FILE_STORAGE = 'Founder-backend.settings.storages.S3DefaultStorage'
+
+SITE_ID=1
