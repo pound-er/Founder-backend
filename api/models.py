@@ -83,7 +83,7 @@ class Magazine(models.Model):
     title = models.CharField(max_length=100)
     author = models.CharField(max_length=20)
     tag_arr = models.TextField(null=True)
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
     episode_num = models.IntegerField(null=True)
     main_img = models.ImageField(upload_to=magazine_path, null=True)
     magazine_type = models.CharField(max_length=20, choices=MAGAZINE_CHOICE)
@@ -202,14 +202,14 @@ class Review(models.Model):
         (1, 1),
     ]
 
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_review')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_review')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_review', blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_review', blank=True)
 
     star_rate = models.IntegerField(choices=RATE_CHOICE)
     review_text = models.TextField()
     review_tag_arr = models.TextField()
-    review_main_img = models.ImageField(upload_to=review_path, null=True)
-    created_at = models.DateTimeField()
+    review_main_img = models.ImageField(upload_to=review_path, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class ReviewMedia(models.Model):
