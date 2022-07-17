@@ -25,8 +25,6 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
 
-    review = ReviewSerializer(many=True)
-
     class Meta:
         model = Product
         fields = '__all__'
@@ -47,8 +45,6 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class BrandSerializer(serializers.ModelSerializer):
-
-    products = ProductSerializer(many=True)
 
     class Meta:
         model = Brand

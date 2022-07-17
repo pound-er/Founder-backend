@@ -6,8 +6,20 @@ from .serializers import *
 from .models import *
 
 
+class Brand4TypeView(APIView):
+    def get(self, request, type_name):
+        products = Product.objects.filter(type__type_name=type_name).values('brand')
+        brand_arr = []
+        for idx in products:
+            brand = Brand.objects.get(pk=idx['brand'])
+            serializer = BrandSerializer(brand)
+            brand_arr.append(serializer.data)
+        return Response(brand_arr, status=status.HTTP_200_OK)
+
+
 class Type4RecommendView(APIView):
     def get(self, request):
+    
         # 로그인 시 "맞춤 추천 Type" 정보 반환
         '''
         user = User.objects.get(pk=1)  # 데모데이터(admin)
@@ -19,6 +31,7 @@ class Type4RecommendView(APIView):
             type_arr.append(serializer.data)
         return Response(type_arr, status=status.HTTP_200_OK)
         '''
+        
         # 미 로그인 시 "식품 모두 다 / 스킨케어 팩 / 유산균 / 영양제 / 맞춤케어 영양제 팩" 정보 반환
         food_types = Type.objects.filter(category__category_name="Food")  # 식품 모두
         serializer = TypeSerializer(food_types, many=True)
@@ -32,8 +45,8 @@ class Type4RecommendView(APIView):
 
 
 class Type4CategoryView(APIView):
-    def get(self, request, category):
-        types = Type.objects.filter(category__category_name=category)
+    def get(self, request, category_name):
+        types = Type.objects.filter(category__category_name=category_name)
         serializer = TypeSerializer(types, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
