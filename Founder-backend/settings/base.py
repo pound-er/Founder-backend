@@ -29,12 +29,12 @@ SECRET_KEY = env('DJANGO_SECRET_KEY')
 DEBUG = env('DEBUG')
 # KAKAO Oauth
 KAKAO_REST_API_KEY = env('KAKAO_REST_API_KEY')
-KAKAO_REDIRECT_URI = env('KAKAO_REDIRECT_URI')
+KAKAO_SIGNIN_REDIRECT_URI = env('KAKAO_SIGNIN_REDIRECT_URI')
+KAKAO_SIGNOUT_REDIRECT_URI = env('KAKAO_SIGNOUT_REDIRECT_URI')
 KAKAO_SECRET_KEY = env('KAKAO_SECRET_KEY')
 
 ALLOWED_HOSTS = [
-    "ec2-3-39-168-192.ap-northeast-2.compute.amazonaws.com",
-    "127.0.0.1"
+    "*"
 ]
 
 AUTH_USER_MODEL = 'api.User'
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'rest_framework',
+    'rest_framework_simplejwt',
     'api',
 ]
 
