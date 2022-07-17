@@ -72,6 +72,14 @@ class SurveyView(APIView):
 
         for each_json in request.data:
 
+            # 성별 문항
+            if each_json['question_num'] == "0":
+                if each_json['answer_num'] == "1":
+                    user.gender = 'Female'
+                else:
+                    user.gender = 'Male'
+                user.save()
+
             # 큐레이션 문항
             if each_json['question_num'] == "1":
                 if each_json['answer_num'] == "1":
