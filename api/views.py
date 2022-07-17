@@ -68,13 +68,14 @@ class KaKaoSignInCallBackView(APIView):
             user = User(email=kakao_email, nickname=kakao_nickname)
             user = user.save()
             user = User.objects.get(email=kakao_email)
-            status = "New User : SingUp"    # 회원가입 : 회원 정보 저장
+            status = "New User : SignUp"    # 회원가입 : 회원 정보 저장
 
         token = get_tokens_for_user(user)
 
         res = Response({
             "nickname": kakao_nickname,
             "email": kakao_email,
+            "gender": user.gender,
             "set_curation": user.set_curation,
             "status": status,
             "token": token,
