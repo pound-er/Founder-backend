@@ -3,23 +3,87 @@ from django.conf import settings
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-from datetime import datetime
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .serializers import *
 from .models import *
 from .forms import ReviewForm
 
+import requests
 
-# 인가 코드 받기
+
+# 토큰 수동 생성
+def get_tokens_for_user(User):
+    refresh = RefreshToken.for_user(User)
+
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
+
+
+# 카카오 회원가입+로그인 : 인가 코드 받기
 class KakaoSignInView(APIView):
     def get(self, request):
         client_id = settings.KAKAO_REST_API_KEY
-        redirect_uri = settings.KAKAO_REDIRECT_URI
+        redirect_uri = settings.KAKAO_SIGNIN_REDIRECT_URI
 
         return redirect(
             f'https://kauth.kakao.com/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code'
         )
+
+
+# 카카오 회원가입+로그인 : 콜백
+class KaKaoSignInCallBackView(APIView):
+    def get(self, request):
+
+        create_data = {
+            'grant_type': 'authorization_code',
+            'client_id': settings.KAKAO_REST_API_KEY,
+            'redirection_uri': settings.KAKAO_SIGNIN_REDIRECT_URI,
+            'code': request.GET.get("code")
+        }
+
+        kakao_token_api = "https://kauth.kakao.com/oauth/token"
+        kakao_token_json = requests.post(kakao_token_api, data=create_data).json()
+        access_token = kakao_token_json.get('access_token')
+
+        kakao_user_api = 'https://kapi.kakao.com/v2/user/me'
+        auth_header = {
+            "Authorization": f"Bearer ${access_token}"
+        }
+        user_info = requests.get(kakao_user_api, headers=auth_header).json()
+
+        properties = user_info.get("properties")
+        kakao_account = user_info.get("kakao_account")
+
+        kakao_nickname = properties.get("nickname")
+        kakao_email = kakao_account.get("email")
+
+        try:
+            user = User.objects.get(email=kakao_email)
+            status = "Existing User : SignIn"   # 로그인
+
+        except:
+            user = User(email=kakao_email, nickname=kakao_nickname)
+            user = user.save()
+            user = User.objects.get(email=kakao_email)
+            status = "New User : SingUp"    # 회원가입 : 회원 정보 저장
+
+        token = get_tokens_for_user(user)
+
+        res = Response({
+            "nickname": kakao_nickname,
+            "email": kakao_email,
+            "set_curation": user.set_curation,
+            "status": status,
+            "token": token,
+        })
+
+        refresh_token = token["refresh"]
+        res.set_cookie('refresh_token', refresh_token)
+
+        return res
 
 
 class ProductDetailView(APIView):

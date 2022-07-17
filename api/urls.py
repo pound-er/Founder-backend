@@ -10,6 +10,7 @@ urlpatterns = [
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
     path('auth/kakao/signin/', KakaoSignInView.as_view()),
+    path('auth/kakao/signin/callback/', KaKaoSignInCallBackView.as_view()),
 
     path('type/recommend/', Type4RecommendView.as_view()),
     path('survey/', SurveyView.as_view()),
