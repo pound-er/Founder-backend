@@ -1,5 +1,7 @@
 from django.shortcuts import redirect
 from django.conf import settings
+from django.http import Http404
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -191,6 +193,19 @@ class SurveyView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class BrandDetailView(APIView):
+    def get_object(self, pk):
+        try:
+            return Brand.objects.get(pk=pk)
+        except Brand.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        brand = Brand.objects.get(pk=pk)
+        serializer = BrandSerializer(brand)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class ReviewView(APIView):  # 리뷰 전체 불러 오기
     def get(self, request, pk):  # 상품의 pk
         reviews = Review.objects.filter(product_id=pk)
@@ -213,3 +228,4 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
                 review_media.save()
             return Response("Created Successfully", status=status.HTTP_201_CREATED)
         return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+
