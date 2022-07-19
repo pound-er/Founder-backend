@@ -16,6 +16,7 @@ urlpatterns = [
     path('auth/kakao/signin/callback/', KaKaoSignInCallBackView.as_view()),
 
     path('brand/<int:pk>/', BrandDetailView.as_view()),
+    path('type/curation/product/', CurationProductDetailView.as_view()),
 
     path('type/recommend/', Type4RecommendView.as_view()),
     path('survey/', SurveyView.as_view()),
