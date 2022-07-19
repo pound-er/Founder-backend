@@ -132,17 +132,6 @@ class TypeDetailView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-class Brand4TypeView(APIView):
-    def get(self, request, type_name):
-        products = Product.objects.filter(type__type_name=type_name).values('brand')
-        brand_arr = []
-        for idx in products:
-            brand = Brand.objects.get(pk=idx['brand'])
-            serializer = BrandSerializer(brand)
-            brand_arr.append(serializer.data)
-        return Response(brand_arr, status=status.HTTP_200_OK)
-
-
 class Type4RecommendView(APIView):
     def get(self, request):
     
