@@ -230,6 +230,14 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
         return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class TypeProductDetailView(APIView):
+    def get(self, request, type_name):
+        type = Type.objects.get(type_name=type_name)
+        products = Product.objects.filter(type=type.id)
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class ReviewStarView(APIView):
     def get(self, request, pk):
         star_5 = Review.objects.filter(product_id=pk, star_rate=5).count()
@@ -248,3 +256,4 @@ class ReviewStarView(APIView):
             "total": round(total, 1),
         }
         return Response(res, status=status.HTTP_200_OK)
+
