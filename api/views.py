@@ -230,9 +230,45 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
         return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class CurationProductDetailView(APIView):
+    def get(self, request):
+        products = Product.objects.filter(default_rec_flag=True)
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class TypeProductDetailView(APIView):
     def get(self, request, type_name):
         type = Type.objects.get(type_name=type_name)
         products = Product.objects.filter(type=type.id)
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class TypeProductMainDetailView(APIView):
+    def get(self, request, type_name):
+        type = Type.objects.get(type_name=type_name)
+        products = Product.objects.filter(type=type.id, main_product_flag=True)
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ReviewStarView(APIView):
+    def get(self, request, pk):
+        star_5 = Review.objects.filter(product_id=pk, star_rate=5).count()
+        star_4 = Review.objects.filter(product_id=pk, star_rate=4).count()
+        star_3 = Review.objects.filter(product_id=pk, star_rate=3).count()
+        star_2 = Review.objects.filter(product_id=pk, star_rate=2).count()
+        star_1 = Review.objects.filter(product_id=pk, star_rate=1).count()
+
+        total = (star_5*5 + star_4*4 + star_3*3 + star_2*2 + star_1)/(star_1 + star_2 + star_3 + star_4 + star_5)
+        res = {
+            "star_5": star_5,
+            "star_4": star_4,
+            "star_3": star_3,
+            "star_2": star_2,
+            "star_1": star_1,
+            "total": round(total, 1),
+        }
+        return Response(res, status=status.HTTP_200_OK)
+
