@@ -18,6 +18,9 @@ urlpatterns = [
     # Type
     path('type/<str:type_name>', TypeDetailView.as_view()),
 
+    # Category
+    path('category/<str:category_name>', CategoryDetailView.as_view()),
+
     path('brand/<int:pk>/', BrandDetailView.as_view()),
 
     path('magazine/<str:magazine_type>/', MagazineView.as_view()),
