@@ -17,6 +17,7 @@ urlpatterns = [
 
     path('brand/<int:pk>/', BrandDetailView.as_view()),
     path('type/<str:type_name>/product/', TypeProductDetailView.as_view()),
+    path('type/<str:type_name>/product/main/', TypeProductMainDetailView.as_view()),
 
     path('type/recommend/', Type4RecommendView.as_view()),
     path('survey/', SurveyView.as_view()),
