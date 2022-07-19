@@ -180,13 +180,6 @@ class Type4RecommendView(APIView):
         return Response(type_arr, status=status.HTTP_200_OK)
 
 
-class Type4CategoryView(APIView):
-    def get(self, request, category_name):
-        types = Type.objects.filter(category__category_name=category_name)
-        serializer = TypeSerializer(types, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 class SurveyView(APIView):
     def put(self, request):
         user = User.objects.get(pk=1)  # 데모데이터(admin)
