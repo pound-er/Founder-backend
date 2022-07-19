@@ -272,14 +272,6 @@ class MagazineDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class TypeProductDetailView(APIView):
-    def get(self, request, type_name):
-        type = Type.objects.get(type_name=type_name)
-        products = Product.objects.filter(type=type.id)
-        serializer = ProductSerializer(products, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 class TypeProductMainDetailView(APIView):
     def get(self, request, type_name):
         type = Type.objects.get(type_name=type_name)
