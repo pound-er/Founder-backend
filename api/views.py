@@ -237,6 +237,19 @@ class MagazineView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class MagazineDetailView(APIView):
+    def get_object(self, magazine_type, pk):
+        try:
+            return Magazine.objects.get(magazine_type=magazine_type, pk=pk)
+        except Magazine.DoesNotExist:
+            raise Http404
+
+    def get(self, request, magazine_type, pk):
+        magazine = self.get_object(magazine_type, pk)
+        serializer = MagazineSerializer(magazine)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class CurationProductDetailView(APIView):
     def get(self, request):
         products = Product.objects.filter(default_rec_flag=True)

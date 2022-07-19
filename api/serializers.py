@@ -67,6 +67,7 @@ class MagazineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Magazine
         fields = [
+            'id',
             'title',
             'author',
             'tag_arr',
