@@ -24,6 +24,7 @@ urlpatterns = [
     path('brand/<str:type_name>/', Brand4TypeView.as_view()),
     path('type/category/<str:category>/', Type4CategoryView.as_view()),
     path('review/<int:pk>/', ReviewView.as_view()),
+    path('review/<int:pk>/star/', ReviewStarView.as_view()),
     path('product/detail/<int:pk>/', ProductDetailView.as_view()),
 
 ]
