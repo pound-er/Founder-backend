@@ -53,20 +53,31 @@ class BrandSerializer(serializers.ModelSerializer):
 
 class MagazineContentSerializer(serializers.ModelSerializer):
 
-    brands = BrandSerializer(many=True)
+    magazinecontent_brand = BrandSerializer(many=True)
 
     class Meta:
         model = MagazineContent
-        fields = '__all__'
+        fields = ['id', 'detail_title', 'detail_content', 'detail_img', 'magazinecontent_brand']
 
 
 class MagazineSerializer(serializers.ModelSerializer):
 
-    magazineContents = MagazineContentSerializer(many=True)
+    magazine_magazinecontent = MagazineContentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Magazine
-        fields = '__all__'
+        fields = [
+            'title',
+            'author',
+            'tag_arr',
+            'created_at',
+            'episode_num',
+            'main_img',
+            'magazine_type',
+            'intro_title',
+            'intro_content',
+            'magazine_magazinecontent',
+        ]
 
 
 class UserSerializer(serializers.ModelSerializer):
