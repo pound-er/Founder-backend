@@ -229,3 +229,10 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
             return Response("Created Successfully", status=status.HTTP_201_CREATED)
         return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class TypeProductDetailView(APIView):
+    def get(self, request, type_name):
+        type = Type.objects.get(type_name=type_name)
+        products = Product.objects.filter(type=type.id)
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
