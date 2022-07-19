@@ -18,12 +18,17 @@ urlpatterns = [
     path('brand/<int:pk>/', BrandDetailView.as_view()),
     path('magazine/<str:magazine_type>/', MagazineView.as_view()),
 
+    path('type/curation/product/', CurationProductDetailView.as_view()),
+    path('type/<str:type_name>/product/', TypeProductDetailView.as_view()),
+    path('type/<str:type_name>/product/main/', TypeProductMainDetailView.as_view()),
+
     path('type/recommend/', Type4RecommendView.as_view()),
     path('survey/', SurveyView.as_view()),
     path('type/category/<str:category_name>/', Type4CategoryView.as_view()),
     path('brand/<str:type_name>/', Brand4TypeView.as_view()),
     path('type/category/<str:category>/', Type4CategoryView.as_view()),
     path('review/<int:pk>/', ReviewView.as_view()),
+    path('review/<int:pk>/star/', ReviewStarView.as_view()),
     path('product/detail/<int:pk>/', ProductDetailView.as_view()),
 
 ]
