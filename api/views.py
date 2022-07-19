@@ -272,13 +272,6 @@ class MagazineDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class CurationProductDetailView(APIView):
-    def get(self, request):
-        products = Product.objects.filter(default_rec_flag=True)
-        serializer = ProductSerializer(products, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 class TypeProductDetailView(APIView):
     def get(self, request, type_name):
         type = Type.objects.get(type_name=type_name)
