@@ -238,6 +238,14 @@ class TypeProductDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class TypeProductMainDetailView(APIView):
+    def get(self, request, type_name):
+        type = Type.objects.get(type_name=type_name)
+        products = Product.objects.filter(type=type.id, main_product_flag=True)
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class ReviewStarView(APIView):
     def get(self, request, pk):
         star_5 = Review.objects.filter(product_id=pk, star_rate=5).count()
