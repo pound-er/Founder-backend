@@ -27,6 +27,10 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('DJANGO_SECRET_KEY')
 DEBUG = env('DEBUG')
+
+# Domain
+SITE_DOMAIN = env('SITE_DOMAIN')
+
 # KAKAO Oauth
 KAKAO_REST_API_KEY = env('KAKAO_REST_API_KEY')
 KAKAO_SIGNIN_REDIRECT_URI = env('KAKAO_SIGNIN_REDIRECT_URI')
