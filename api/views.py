@@ -99,6 +99,39 @@ class ProductDetailView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
+class TypeDetailView(APIView):
+    def get_brand(self, products):
+        products = products.values('brand')
+        brand_arr = []
+
+        for idx in products:
+            brand = Brand.objects.get(pk=idx['brand'])
+            serializer = BrandSerializer(brand)
+            brand_arr.append(serializer.data)
+
+        brand_list = list({brand_info['id']: brand_info for brand_info in brand_arr}.values())
+        return brand_list
+
+    def get(self, request, type_name):
+        if type_name == 'curation':
+            type_info = type_name
+            products = Product.objects.filter(default_rec_flag=True)
+        else:
+            type = Type.objects.get(type_name=type_name)
+            type_info = TypeSerializer(type).data
+            products = Product.objects.filter(type=type.id)
+
+        product_serializer = ProductSerializer(products, many=True)
+        brand = self.get_brand(products)
+        return Response({
+            "type": type_info,
+            "type_detail": {
+                "product": product_serializer.data,
+                "brand": brand
+            }
+        }, status=status.HTTP_200_OK)
+
+
 class Brand4TypeView(APIView):
     def get(self, request, type_name):
         products = Product.objects.filter(type__type_name=type_name).values('brand')
