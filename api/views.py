@@ -229,3 +229,9 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
             return Response("Created Successfully", status=status.HTTP_201_CREATED)
         return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class MagazineView(APIView):
+    def get(self, request, magazine_type):
+        magazines = Magazine.objects.filter(magazine_type=magazine_type)
+        serializer = MagazineSerializer(magazines, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
