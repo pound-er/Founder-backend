@@ -18,6 +18,9 @@ urlpatterns = [
     # Type
     path('type/<str:type_name>', TypeDetailView.as_view()),
 
+    # Category
+    path('category/<str:category_name>', CategoryDetailView.as_view()),
+
     path('brand/<int:pk>/', BrandDetailView.as_view()),
 
     path('magazine/<str:magazine_type>/', MagazineView.as_view()),
@@ -27,8 +30,6 @@ urlpatterns = [
 
     path('type/recommend/', Type4RecommendView.as_view()),
     path('survey/', SurveyView.as_view()),
-    path('type/category/<str:category_name>/', Type4CategoryView.as_view()),
-    path('type/category/<str:category>/', Type4CategoryView.as_view()),
     path('review/<int:pk>/', ReviewView.as_view()),
     path('review/<int:pk>/star/', ReviewStarView.as_view()),
     path('product/detail/<int:pk>/', ProductDetailView.as_view()),

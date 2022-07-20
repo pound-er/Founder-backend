@@ -132,6 +132,27 @@ class TypeDetailView(APIView):
         }, status=status.HTTP_200_OK)
 
 
+class CategoryDetailView(APIView):
+    def get_type_detail(self, types):
+        type_detail_arr = []
+
+        for name in types:
+            type_detail = requests.get(f'{settings.SITE_DOMAIN}/api/type/{name["type_name"]}').json()
+            type_detail_arr.append(type_detail)
+        return type_detail_arr
+
+    def get(self, request, category_name):
+        category = Category.objects.get(category_name=category_name)
+        types = Type.objects.filter(category__category_name=category_name).values('type_name')
+
+        serializer = CategorySerializer(category)
+        types_detail = self.get_type_detail(types)
+        return Response({
+            "category": serializer.data["category_name"],
+            "category_detail": types_detail
+        }, status=status.HTTP_200_OK)
+
+
 class Type4RecommendView(APIView):
     def get(self, request):
     
@@ -157,13 +178,6 @@ class Type4RecommendView(APIView):
             serializer = TypeSerializer(types)
             type_arr.append(serializer.data)
         return Response(type_arr, status=status.HTTP_200_OK)
-
-
-class Type4CategoryView(APIView):
-    def get(self, request, category_name):
-        types = Type.objects.filter(category__category_name=category_name)
-        serializer = TypeSerializer(types, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class SurveyView(APIView):
