@@ -74,16 +74,16 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Magazine(models.Model):
 
     MAGAZINE_CHOICE = [
-        ('Founder Story', 'Founder Story'),
-        ('Daily Curation', 'Daily Curation'),
+        ('founder-story', 'founder-story'),
+        ('daily-curation', 'daily-curation'),
     ]
 
     title = models.CharField(max_length=100)
     author = models.CharField(max_length=20)
-    tag_arr = models.TextField(null=True)
+    tag_arr = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    episode_num = models.IntegerField(null=True)
-    main_img = models.ImageField(upload_to=magazine_path, null=True)
+    episode_num = models.IntegerField(null=True, blank=True)
+    main_img = models.ImageField(upload_to=magazine_path, null=True, blank=True)
     magazine_type = models.CharField(max_length=20, choices=MAGAZINE_CHOICE)
     intro_title = models.TextField()
     intro_content = models.TextField()
@@ -92,8 +92,8 @@ class Magazine(models.Model):
 class MagazineContent(models.Model):
     magazine = models.ForeignKey(Magazine, on_delete=models.CASCADE, related_name='magazine_magazinecontent')
 
-    detail_title = models.CharField(max_length=100, null=True)
-    detail_content = models.TextField(null=True)
+    detail_title = models.CharField(max_length=100, null=True, blank=True)
+    detail_content = models.TextField(null=True, blank=True)
     detail_img = models.ImageField(upload_to=magazine_path, blank=True, null=True)
 
 
