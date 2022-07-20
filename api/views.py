@@ -14,7 +14,44 @@ from .forms import ReviewForm
 import requests
 
 
-# 토큰 수동 생성
+# 상품들의 브랜드 정보(중복 제거) 추출
+def get_products_brand_list(products):
+    products = products.values('brand')
+    brand_arr = []
+
+    for idx in products:
+        brand = Brand.objects.get(pk=idx['brand'])
+        serializer = BrandSerializer(brand)
+        brand_arr.append(serializer.data)
+
+    brand_list = list({brand_info['id']: brand_info for brand_info in brand_arr}.values())
+    return brand_list
+
+
+def get_type_detail(type_name):
+    if type_name == 'curation':
+        type_info = type_name
+        products = Product.objects.filter(default_rec_flag=True)
+    else:
+        type = Type.objects.get(type_name=type_name)
+        type_info = TypeSerializer(type).data
+        products = Product.objects.filter(type=type.id)
+
+    product_serializer = ProductSerializer(products, many=True)
+    brand = get_products_brand_list(products)
+
+    res = {
+            "type": type_info,
+            "type_detail": {
+                "product": product_serializer.data,
+                "brand": brand
+            }
+    }
+
+    return res
+
+
+    # 토큰 수동 생성
 def get_tokens_for_user(User):
     refresh = RefreshToken.for_user(User)
 
@@ -86,7 +123,7 @@ class KaKaoSignInCallBackView(APIView):
         refresh_token = token["refresh"]
         res.set_cookie('refresh_token', refresh_token)
 
-        return
+        return res
 
 
 class UserDetailView(APIView):
@@ -117,36 +154,11 @@ class ProductDetailView(APIView):
 
 
 class TypeDetailView(APIView):
-    def get_brand(self, products):
-        products = products.values('brand')
-        brand_arr = []
-
-        for idx in products:
-            brand = Brand.objects.get(pk=idx['brand'])
-            serializer = BrandSerializer(brand)
-            brand_arr.append(serializer.data)
-
-        brand_list = list({brand_info['id']: brand_info for brand_info in brand_arr}.values())
-        return brand_list
-
     def get(self, request, type_name):
-        if type_name == 'curation':
-            type_info = type_name
-            products = Product.objects.filter(default_rec_flag=True)
-        else:
-            type = Type.objects.get(type_name=type_name)
-            type_info = TypeSerializer(type).data
-            products = Product.objects.filter(type=type.id)
-
-        product_serializer = ProductSerializer(products, many=True)
-        brand = self.get_brand(products)
-        return Response({
-            "type": type_info,
-            "type_detail": {
-                "product": product_serializer.data,
-                "brand": brand
-            }
-        }, status=status.HTTP_200_OK)
+        return Response(
+            get_type_detail(type_name),
+            status=status.HTTP_200_OK
+        )
 
 
 class CategoryDetailView(APIView):
@@ -154,7 +166,7 @@ class CategoryDetailView(APIView):
         type_detail_arr = []
 
         for name in types:
-            type_detail = requests.get(f'{settings.SITE_DOMAIN}/api/type/{name["type_name"]}').json()
+            type_detail = get_type_detail(name["type_name"])
             type_detail_arr.append(type_detail)
         return type_detail_arr
 
