@@ -99,15 +99,37 @@ class ProductDetailView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-class Brand4TypeView(APIView):
-    def get(self, request, type_name):
-        products = Product.objects.filter(type__type_name=type_name).values('brand')
+class TypeDetailView(APIView):
+    def get_brand(self, products):
+        products = products.values('brand')
         brand_arr = []
+
         for idx in products:
             brand = Brand.objects.get(pk=idx['brand'])
             serializer = BrandSerializer(brand)
             brand_arr.append(serializer.data)
-        return Response(brand_arr, status=status.HTTP_200_OK)
+
+        brand_list = list({brand_info['id']: brand_info for brand_info in brand_arr}.values())
+        return brand_list
+
+    def get(self, request, type_name):
+        if type_name == 'curation':
+            type_info = type_name
+            products = Product.objects.filter(default_rec_flag=True)
+        else:
+            type = Type.objects.get(type_name=type_name)
+            type_info = TypeSerializer(type).data
+            products = Product.objects.filter(type=type.id)
+
+        product_serializer = ProductSerializer(products, many=True)
+        brand = self.get_brand(products)
+        return Response({
+            "type": type_info,
+            "type_detail": {
+                "product": product_serializer.data,
+                "brand": brand
+            }
+        }, status=status.HTTP_200_OK)
 
 
 class Type4RecommendView(APIView):
@@ -247,21 +269,6 @@ class MagazineDetailView(APIView):
     def get(self, request, magazine_type, pk):
         magazine = self.get_object(magazine_type, pk)
         serializer = MagazineSerializer(magazine)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class CurationProductDetailView(APIView):
-    def get(self, request):
-        products = Product.objects.filter(default_rec_flag=True)
-        serializer = ProductSerializer(products, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class TypeProductDetailView(APIView):
-    def get(self, request, type_name):
-        type = Type.objects.get(type_name=type_name)
-        products = Product.objects.filter(type=type.id)
-        serializer = ProductSerializer(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
