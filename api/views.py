@@ -282,9 +282,16 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
         if form.is_valid():
             review = form.save(commit=False)
             review.product = Product.objects.get(pk=pk)
+
+            total_review = Review.objects.filter(product_id=pk).count()
+            star_rate = ((review.product.star_rate_avg * total_review) + review.star_rate) / (total_review + 1)
+            review.product.star_rate_avg = round(star_rate, 1)
+            review.product.save()
+
             review.user = User.objects.get(pk=1)  # 데모데이터(admin)
             review.review_main_img = request.data['review_main_img']
             review.save()
+
             # 다중 이미지 처리
             for img in request.FILES.getlist('reviewMedia'):
                 review_media = ReviewMedia()
