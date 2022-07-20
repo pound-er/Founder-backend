@@ -83,9 +83,17 @@ class MagazineSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
 
-    surveyResults = SurveyResultSerializer(many=True)
-    review = ReviewSerializer(many=True)
+    user_surveyresult = SurveyResultSerializer(many=True)
+    user_review = ReviewSerializer(many=True)
 
     class Meta:
         model = User
-        fields = '__all__'
+        fields = [
+            'nickname',
+            'email',
+            'gender',
+            'set_curation',
+            'user_surveyresult',
+            'user_review',
+        ]
+

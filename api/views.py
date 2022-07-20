@@ -86,7 +86,24 @@ class KaKaoSignInCallBackView(APIView):
         refresh_token = token["refresh"]
         res.set_cookie('refresh_token', refresh_token)
 
-        return res
+        return
+
+
+class UserDetailView(APIView):
+    def get(self, request):
+
+        cur_user = request.user
+
+        if cur_user.is_anonymous:
+            return Response("Anonymous User", status=status.HTTP_404_NOT_FOUND)
+        else:
+            serializer = UserSerializer(request.user)
+            return Response({
+                "nickname": serializer.data["nickname"],
+                "email": serializer.data["email"],
+                "gender": serializer.data["gender"],
+                "review_cnt": len(serializer.data["user_review"])
+            }, status=status.HTTP_200_OK)
 
 
 class ProductDetailView(APIView):
