@@ -281,15 +281,15 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
         form = ReviewForm(request.POST)
         if form.is_valid():
             review = form.save(commit=False)
+
+            review.user = User.objects.get(pk=1)  # 데모데이터(admin)
             review.product = Product.objects.get(pk=pk)
+            review.review_main_img = request.data['review_main_img']
 
             total_review = Review.objects.filter(product_id=pk).count()
             star_rate = ((review.product.star_rate_avg * total_review) + review.star_rate) / (total_review + 1)
             review.product.star_rate_avg = round(star_rate, 1)
             review.product.save()
-
-            review.user = User.objects.get(pk=1)  # 데모데이터(admin)
-            review.review_main_img = request.data['review_main_img']
             review.save()
 
             # 다중 이미지 처리
@@ -332,20 +332,14 @@ class TypeProductMainDetailView(APIView):
 
 class ReviewStarView(APIView):
     def get(self, request, pk):
-        star_5 = Review.objects.filter(product_id=pk, star_rate=5).count()
-        star_4 = Review.objects.filter(product_id=pk, star_rate=4).count()
-        star_3 = Review.objects.filter(product_id=pk, star_rate=3).count()
-        star_2 = Review.objects.filter(product_id=pk, star_rate=2).count()
-        star_1 = Review.objects.filter(product_id=pk, star_rate=1).count()
+        star_rate = []
+        for star in range(5, 0, -1):
+            star_rate.append(Review.objects.filter(product_id=pk, star_rate=star).count())
+        star_rate_avg = Product.objects.get(pk=pk).star_rate_avg
 
-        total = (star_5*5 + star_4*4 + star_3*3 + star_2*2 + star_1)/(star_1 + star_2 + star_3 + star_4 + star_5)
         res = {
-            "star_5": star_5,
-            "star_4": star_4,
-            "star_3": star_3,
-            "star_2": star_2,
-            "star_1": star_1,
-            "total": round(total, 1),
+            "star_rate": star_rate,  # 별점 높은 순
+            "star_rate_avg": star_rate_avg,
         }
         return Response(res, status=status.HTTP_200_OK)
 
