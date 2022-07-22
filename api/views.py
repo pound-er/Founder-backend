@@ -14,7 +14,7 @@ from .forms import ReviewForm
 import requests
 
 
-# 상품들의 브랜드 정보(중복 제거) 추출
+# 상품들의 브랜드 정보(중복 제거)
 def get_products_brand_list(products):
     products = products.values('brand')
     brand_arr = []
@@ -28,6 +28,7 @@ def get_products_brand_list(products):
     return brand_list
 
 
+# 타입 상세 정보
 def get_type_detail(type_name):
     if type_name == 'curation':
         type_info = type_name
@@ -51,17 +52,7 @@ def get_type_detail(type_name):
     return res
 
 
-    # 토큰 수동 생성
-def get_tokens_for_user(User):
-    refresh = RefreshToken.for_user(User)
-
-    return {
-        'refresh': str(refresh),
-        'access': str(refresh.access_token),
-    }
-
-
-# 카카오 회원가입+로그인 : 인가 코드 받기
+# 카카오 회원가입+로그인
 class KakaoSignInView(APIView):
     def get(self, request):
         client_id = settings.KAKAO_REST_API_KEY
@@ -101,27 +92,29 @@ class KaKaoSignInCallBackView(APIView):
 
         try:
             user = User.objects.get(email=kakao_email)
-            status = "Existing User : SignIn"   # 로그인
+            message = "Existing User : SignIn"   # 로그인
 
         except:
             user = User(email=kakao_email, nickname=kakao_nickname)
             user = user.save()
             user = User.objects.get(email=kakao_email)
-            status = "New User : SignUp"    # 회원가입 : 회원 정보 저장
+            message = "New User : SignUp"    # 회원가입 : 회원 정보 저장
 
-        token = get_tokens_for_user(user)
+        token = RefreshToken.for_user(user)
+        refresh_token = str(token)
+        access_token = str(token.access_token)
+
+        serializer = UserSerializer(user)
 
         res = Response({
-            "nickname": kakao_nickname,
-            "email": kakao_email,
-            "gender": user.gender,
-            "set_curation": user.set_curation,
-            "status": status,
-            "token": token,
+            "user": serializer.data,
+            "status": message,
+            "token": {
+                "access": access_token,
+                "refresh": refresh_token,
+            },
         })
-
-        refresh_token = token["refresh"]
-        res.set_cookie('refresh_token', refresh_token)
+        res.set_cookie('jwt', refresh_token, httponly=True)
 
         return res
 
