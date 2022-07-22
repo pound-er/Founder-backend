@@ -14,6 +14,10 @@ def product_path(instance, filename):
     return f'product/{instance.product_name}/{filename}'
 
 
+def type_path(instance, filename):
+    return f'type/{instance.type_name}/{filename}'
+
+
 def review_path(instance, filename):
     return f'review/{instance.product.product_name}/{instance.user.email}/{filename}'
 
@@ -154,7 +158,9 @@ class Type(models.Model):
 
     type_name = models.CharField(max_length=20, choices=TYPE_CHOICE)
     type_desc = models.CharField(max_length=100)
+    type_desc_detail = models.CharField(max_length=100)
     type_tag_arr = models.TextField()
+    type_img = models.ImageField(upload_to=type_path)
     order = models.IntegerField()
 
     def __str__(self):
