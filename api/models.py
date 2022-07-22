@@ -217,7 +217,7 @@ class Review(models.Model):
 
 
 class ReviewMedia(models.Model):
-    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='reviewMedia')
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='review_reviewmedia')
 
     review_img = models.ImageField(upload_to=review_media_path, blank=True, null=True)
     img_num = models.IntegerField(null=True)
