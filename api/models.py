@@ -92,6 +92,9 @@ class Magazine(models.Model):
     intro_title = models.TextField()
     intro_content = models.TextField()
 
+    def __str__(self):
+        return '{}. {}'.format(self.id, self.title)
+
 
 class MagazineContent(models.Model):
     magazine = models.ForeignKey(Magazine, on_delete=models.CASCADE, related_name='magazine_magazinecontent')
@@ -99,6 +102,9 @@ class MagazineContent(models.Model):
     detail_title = models.CharField(max_length=100, null=True, blank=True)
     detail_content = models.TextField(null=True, blank=True)
     detail_img = models.ImageField(upload_to=magazine_path, blank=True, null=True)
+
+    def __str__(self):
+        return '[{}]'.format(self.id)
 
 
 class Brand(models.Model):
@@ -109,6 +115,9 @@ class Brand(models.Model):
     brand_link = models.URLField()
     brand_desc = models.TextField()
     brand_bg_img = models.ImageField(upload_to=brand_path, null=True)
+
+    def __str__(self):
+        return '{}. {}'.format(self.id, self.brand_name)
 
 
 class Category(models.Model):
@@ -194,6 +203,10 @@ class Product(models.Model):
     main_product_flag = models.BooleanField()
     default_rec_flag = models.BooleanField()
 
+    def __str__(self):
+        return '{}. {}'.format(self.id, self.product_name)
+
+
 
 class Review(models.Model):
 
@@ -214,11 +227,16 @@ class Review(models.Model):
     review_main_img = models.ImageField(upload_to=review_path, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return '{}. {} - {}'.format(self.id, self.product.product_name, self.user.nickname)
+
 
 class ReviewMedia(models.Model):
     review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='review_reviewmedia')
-
     review_img = models.ImageField(upload_to=review_media_path, blank=True, null=True)
+
+    def __str__(self):
+        return '{}'.format(self.id)
 
 
 class SurveyResult(models.Model):
