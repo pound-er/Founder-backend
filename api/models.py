@@ -14,6 +14,10 @@ def product_path(instance, filename):
     return f'product/{instance.product_name}/{filename}'
 
 
+def type_path(instance, filename):
+    return f'type/{instance.type_name}/{filename}'
+
+
 def review_path(instance, filename):
     return f'review/{instance.product.product_name}/{instance.user.email}/{filename}'
 
@@ -54,8 +58,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     GENDER_CHOICE = [
-        ('Female', 'Female'),
-        ('Male', 'Male'),
+        ('female', 'female'),
+        ('male', 'male'),
     ]
 
     nickname = models.CharField(max_length=20)
@@ -74,27 +78,33 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Magazine(models.Model):
 
     MAGAZINE_CHOICE = [
-        ('Founder Story', 'Founder Story'),
-        ('Daily Curation', 'Daily Curation'),
+        ('founder-story', 'founder-story'),
+        ('daily-curation', 'daily-curation'),
     ]
 
     title = models.CharField(max_length=100)
     author = models.CharField(max_length=20)
-    tag_arr = models.TextField(null=True)
+    tag_arr = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    episode_num = models.IntegerField(null=True)
-    main_img = models.ImageField(upload_to=magazine_path, null=True)
+    episode_num = models.IntegerField(null=True, blank=True)
+    main_img = models.ImageField(upload_to=magazine_path, null=True, blank=True)
     magazine_type = models.CharField(max_length=20, choices=MAGAZINE_CHOICE)
     intro_title = models.TextField()
     intro_content = models.TextField()
+
+    def __str__(self):
+        return '{}. {}'.format(self.id, self.title)
 
 
 class MagazineContent(models.Model):
     magazine = models.ForeignKey(Magazine, on_delete=models.CASCADE, related_name='magazine_magazinecontent')
 
-    detail_title = models.CharField(max_length=100, null=True)
-    detail_content = models.TextField(null=True)
+    detail_title = models.CharField(max_length=100, null=True, blank=True)
+    detail_content = models.TextField(null=True, blank=True)
     detail_img = models.ImageField(upload_to=magazine_path, blank=True, null=True)
+
+    def __str__(self):
+        return '[{}]'.format(self.id)
 
 
 class Brand(models.Model):
@@ -106,14 +116,17 @@ class Brand(models.Model):
     brand_desc = models.TextField()
     brand_bg_img = models.ImageField(upload_to=brand_path, null=True)
 
+    def __str__(self):
+        return '{}. {}'.format(self.id, self.brand_name)
+
 
 class Category(models.Model):
 
     CATEGORY_CHOICE = [
-        ('Food', 'Food'),
-        ('Beverage', 'Beverage'),
-        ('Goods', 'Goods'),
-        ('Health', 'Health'),
+        ('food', 'food'),
+        ('beverage', 'beverage'),
+        ('goods', 'goods'),
+        ('health', 'health'),
     ]
     category_name = models.CharField(max_length=20, choices=CATEGORY_CHOICE)
 
@@ -124,38 +137,39 @@ class Category(models.Model):
 class Type(models.Model):
 
     TYPE_CHOICE = [
-        ('Milk', 'Milk'),
-        ('Shake', 'Shake'),
-        ('Yogurt', 'Yogurt'),
-        ('Salad', 'Salad'),
-        ('FriedRice', 'FriedRice'),
-        ('Cereal', 'Cereal'),
-        ('Bread', 'Bread'),
-        ('Chicken', 'Chicken'),
-        ('CoffeeCold', 'CoffeeCold'),
-        ('CoffeeBeans', 'CoffeeBeans'),
-        ('CoffeeCapsule', 'CoffeeCapsule'),
-        ('Tea', 'Tea'),
-        ('Pad', 'Pad'),
-        ('Teeth', 'Teeth'),
-        ('Pack', 'Pack'),  # 팩
-        ('Cotton', 'Cotton'),
-        ('Lens', 'Lens'),
-        ('Shaver', 'Shaver'),
-        ('Lacto', 'Lacto'),
-        ('Supplement', 'Supplement'),
-        ('SkinCarePack', 'SkinCarePack'),  # 스킨케어 팩
-        ('CarePack', 'CarePack'),  # 개인 맞춤 영양팩
-        ('Protein', 'Protein'),
-        ('Collagen', 'Collagen'),
+        ('milk', 'milk'),
+        ('shake', 'shake'),
+        ('yogurt', 'yogurt'),
+        ('salad', 'salad'),
+        ('fried-rice', 'fried-rice'),
+        ('cereal', 'cereal'),
+        ('bread', 'bread'),
+        ('chicken', 'chicken'),
+        ('coffee-cold', 'coffee-cold'),
+        ('coffee-beans', 'coffee-beans'),
+        ('coffee-capsule', 'coffee-capsule'),
+        ('tea', 'tea'),
+        ('pad', 'pad'),
+        ('teeth', 'teeth'),
+        ('pack', 'pack'),  # 팩
+        ('cotton', 'cotton'),
+        ('lens', 'lens'),
+        ('shaver', 'shaver'),
+        ('lacto', 'lacto'),
+        ('supplement', 'supplement'),
+        ('skin-care-pack', 'skin-care-pack'),  # 스킨케어 팩
+        ('care-pack', 'care-pack'),  # 개인 맞춤 영양팩
+        ('protein', 'protein'),
+        ('collagen', 'collagen'),
     ]
 
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category_type')
 
     type_name = models.CharField(max_length=20, choices=TYPE_CHOICE)
     type_desc = models.CharField(max_length=100)
+    type_desc_detail = models.CharField(max_length=100)
     type_tag_arr = models.TextField()
-    order = models.IntegerField()
+    type_img = models.ImageField(upload_to=type_path)
 
     def __str__(self):
         return '{}. {}'.format(self.id, self.type_name)
@@ -164,9 +178,9 @@ class Type(models.Model):
 class Product(models.Model):
 
     DELIVERY_CHOICE = [
-        ('Weekly', 'Weekly'),
-        ('Monthly', 'Monthly'),
-        ('Weekly/Monthly', 'Weekly/Monthly')
+        ('weekly', 'weekly'),
+        ('monthly', 'monthly'),
+        ('weekly/monthly', 'weekly/monthly')
     ]
 
     type = models.ForeignKey(Type, on_delete=models.CASCADE, related_name='type_product')
@@ -189,6 +203,10 @@ class Product(models.Model):
     main_product_flag = models.BooleanField()
     default_rec_flag = models.BooleanField()
 
+    def __str__(self):
+        return '{}. {}'.format(self.id, self.product_name)
+
+
 
 class Review(models.Model):
 
@@ -209,12 +227,16 @@ class Review(models.Model):
     review_main_img = models.ImageField(upload_to=review_path, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return '{}. {} - {}'.format(self.id, self.product.product_name, self.user.nickname)
+
 
 class ReviewMedia(models.Model):
-    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='reviewMedia')
-
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='review_reviewmedia')
     review_img = models.ImageField(upload_to=review_media_path, blank=True, null=True)
-    img_num = models.IntegerField(null=True)
+
+    def __str__(self):
+        return '{}'.format(self.id)
 
 
 class SurveyResult(models.Model):

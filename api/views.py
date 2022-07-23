@@ -14,17 +14,45 @@ from .forms import ReviewForm
 import requests
 
 
-# 토큰 수동 생성
-def get_tokens_for_user(User):
-    refresh = RefreshToken.for_user(User)
+# 상품들의 브랜드 정보(중복 제거)
+def get_products_brand_list(products):
+    products = products.values('brand')
+    brand_arr = []
 
-    return {
-        'refresh': str(refresh),
-        'access': str(refresh.access_token),
+    for idx in products:
+        brand = Brand.objects.get(pk=idx['brand'])
+        serializer = BrandSerializer(brand)
+        brand_arr.append(serializer.data)
+
+    brand_list = list({brand_info['id']: brand_info for brand_info in brand_arr}.values())
+    return brand_list
+
+
+# 타입 상세 정보
+def get_type_detail(type_name):
+    if type_name == 'curation':
+        type_info = type_name
+        products = Product.objects.filter(default_rec_flag=True)
+    else:
+        type = Type.objects.get(type_name=type_name)
+        type_info = TypeSerializer(type).data
+        products = Product.objects.filter(type=type.id)
+
+    product_serializer = ProductSerializer(products, many=True)
+    brand = get_products_brand_list(products)
+
+    res = {
+            "type": type_info,
+            "type_detail": {
+                "product": product_serializer.data,
+                "brand": brand
+            }
     }
 
+    return res
 
-# 카카오 회원가입+로그인 : 인가 코드 받기
+
+# 카카오 회원가입+로그인
 class KakaoSignInView(APIView):
     def get(self, request):
         client_id = settings.KAKAO_REST_API_KEY
@@ -64,29 +92,48 @@ class KaKaoSignInCallBackView(APIView):
 
         try:
             user = User.objects.get(email=kakao_email)
-            status = "Existing User : SignIn"   # 로그인
+            message = "Existing User : SignIn"   # 로그인
 
         except:
             user = User(email=kakao_email, nickname=kakao_nickname)
             user = user.save()
             user = User.objects.get(email=kakao_email)
-            status = "New User : SignUp"    # 회원가입 : 회원 정보 저장
+            message = "New User : SignUp"    # 회원가입 : 회원 정보 저장
 
-        token = get_tokens_for_user(user)
+        token = RefreshToken.for_user(user)
+        refresh_token = str(token)
+        access_token = str(token.access_token)
+
+        serializer = UserSerializer(user)
 
         res = Response({
-            "nickname": kakao_nickname,
-            "email": kakao_email,
-            "gender": user.gender,
-            "set_curation": user.set_curation,
-            "status": status,
-            "token": token,
+            "user": serializer.data,
+            "status": message,
+            "token": {
+                "access": access_token,
+                "refresh": refresh_token,
+            },
         })
-
-        refresh_token = token["refresh"]
-        res.set_cookie('refresh_token', refresh_token)
+        res.set_cookie('jwt', refresh_token, httponly=True)
 
         return res
+
+
+class UserDetailView(APIView):
+    def get(self, request):
+
+        cur_user = request.user
+
+        if cur_user.is_anonymous:
+            return Response("Anonymous User", status=status.HTTP_404_NOT_FOUND)
+        else:
+            serializer = UserSerializer(request.user)
+            return Response({
+                "nickname": serializer.data["nickname"],
+                "email": serializer.data["email"],
+                "gender": serializer.data["gender"],
+                "review_cnt": len(serializer.data["user_review"])
+            }, status=status.HTTP_200_OK)
 
 
 class ProductDetailView(APIView):
@@ -99,15 +146,33 @@ class ProductDetailView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-class Brand4TypeView(APIView):
+class TypeDetailView(APIView):
     def get(self, request, type_name):
-        products = Product.objects.filter(type__type_name=type_name).values('brand')
-        brand_arr = []
-        for idx in products:
-            brand = Brand.objects.get(pk=idx['brand'])
-            serializer = BrandSerializer(brand)
-            brand_arr.append(serializer.data)
-        return Response(brand_arr, status=status.HTTP_200_OK)
+        return Response(
+            get_type_detail(type_name),
+            status=status.HTTP_200_OK
+        )
+
+
+class CategoryDetailView(APIView):
+    def get_type_detail(self, types):
+        type_detail_arr = []
+
+        for name in types:
+            type_detail = get_type_detail(name["type_name"])
+            type_detail_arr.append(type_detail)
+        return type_detail_arr
+
+    def get(self, request, category_name):
+        category = Category.objects.get(category_name=category_name)
+        types = Type.objects.filter(category__category_name=category_name).values('type_name')
+
+        serializer = CategorySerializer(category)
+        types_detail = self.get_type_detail(types)
+        return Response({
+            "category": serializer.data["category_name"],
+            "category_detail": types_detail
+        }, status=status.HTTP_200_OK)
 
 
 class Type4RecommendView(APIView):
@@ -135,13 +200,6 @@ class Type4RecommendView(APIView):
             serializer = TypeSerializer(types)
             type_arr.append(serializer.data)
         return Response(type_arr, status=status.HTTP_200_OK)
-
-
-class Type4CategoryView(APIView):
-    def get(self, request, category_name):
-        types = Type.objects.filter(category__category_name=category_name)
-        serializer = TypeSerializer(types, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class SurveyView(APIView):
@@ -216,10 +274,17 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
         form = ReviewForm(request.POST)
         if form.is_valid():
             review = form.save(commit=False)
-            review.product = Product.objects.get(pk=pk)
+
             review.user = User.objects.get(pk=1)  # 데모데이터(admin)
+            review.product = Product.objects.get(pk=pk)
             review.review_main_img = request.data['review_main_img']
+
+            total_review = Review.objects.filter(product_id=pk).count()
+            star_rate = ((review.product.star_rate_avg * total_review) + review.star_rate) / (total_review + 1)
+            review.product.star_rate_avg = round(star_rate, 1)
+            review.product.save()
             review.save()
+
             # 다중 이미지 처리
             for img in request.FILES.getlist('reviewMedia'):
                 review_media = ReviewMedia()
@@ -230,18 +295,23 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
         return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CurationProductDetailView(APIView):
-    def get(self, request):
-        products = Product.objects.filter(default_rec_flag=True)
-        serializer = ProductSerializer(products, many=True)
+class MagazineView(APIView):
+    def get(self, request, magazine_type):
+        magazines = Magazine.objects.filter(magazine_type=magazine_type)
+        serializer = MagazineSerializer(magazines, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class TypeProductDetailView(APIView):
-    def get(self, request, type_name):
-        type = Type.objects.get(type_name=type_name)
-        products = Product.objects.filter(type=type.id)
-        serializer = ProductSerializer(products, many=True)
+class MagazineDetailView(APIView):
+    def get_object(self, magazine_type, pk):
+        try:
+            return Magazine.objects.get(magazine_type=magazine_type, pk=pk)
+        except Magazine.DoesNotExist:
+            raise Http404
+
+    def get(self, request, magazine_type, pk):
+        magazine = self.get_object(magazine_type, pk)
+        serializer = MagazineSerializer(magazine)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -255,20 +325,14 @@ class TypeProductMainDetailView(APIView):
 
 class ReviewStarView(APIView):
     def get(self, request, pk):
-        star_5 = Review.objects.filter(product_id=pk, star_rate=5).count()
-        star_4 = Review.objects.filter(product_id=pk, star_rate=4).count()
-        star_3 = Review.objects.filter(product_id=pk, star_rate=3).count()
-        star_2 = Review.objects.filter(product_id=pk, star_rate=2).count()
-        star_1 = Review.objects.filter(product_id=pk, star_rate=1).count()
+        star_rate = []
+        for star in range(5, 0, -1):
+            star_rate.append(Review.objects.filter(product_id=pk, star_rate=star).count())
+        star_rate_avg = Product.objects.get(pk=pk).star_rate_avg
 
-        total = (star_5*5 + star_4*4 + star_3*3 + star_2*2 + star_1)/(star_1 + star_2 + star_3 + star_4 + star_5)
         res = {
-            "star_5": star_5,
-            "star_4": star_4,
-            "star_3": star_3,
-            "star_2": star_2,
-            "star_1": star_1,
-            "total": round(total, 1),
+            "star_rate": star_rate,  # 별점 높은 순
+            "star_rate_avg": star_rate_avg,
         }
         return Response(res, status=status.HTTP_200_OK)
 
