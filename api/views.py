@@ -119,6 +119,32 @@ class KaKaoSignInCallBackView(APIView):
         return res
 
 
+class KakaoSignOutView(APIView):
+
+    def get(self, request):
+        client_id = settings.KAKAO_REST_API_KEY
+        redirect_uri = settings.KAKAO_SIGNOUT_REDIRECT_URI
+
+        return redirect(
+            f'https://kauth.kakao.com/oauth/logout?client_id={client_id}&logout_redirect_uri={redirect_uri}'
+        )
+
+
+class KaKaoSignOutCallBackView(APIView):
+
+    def get(self, request):
+        refresh = RefreshToken(request.COOKIES.get('jwt'))
+        refresh.blacklist()
+
+        res = Response({
+            "message": "Sign Out Finished"
+        })
+
+        res.delete_cookie('jwt')
+
+        return res
+
+
 class UserDetailView(APIView):
     def get(self, request):
 
