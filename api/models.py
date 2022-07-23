@@ -161,7 +161,6 @@ class Type(models.Model):
     type_desc_detail = models.CharField(max_length=100)
     type_tag_arr = models.TextField()
     type_img = models.ImageField(upload_to=type_path)
-    order = models.IntegerField()
 
     def __str__(self):
         return '{}. {}'.format(self.id, self.type_name)
