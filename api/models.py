@@ -89,7 +89,7 @@ class Magazine(models.Model):
     episode_num = models.IntegerField(null=True, blank=True)
     main_img = models.ImageField(upload_to=magazine_path, null=True, blank=True)
     magazine_type = models.CharField(max_length=20, choices=MAGAZINE_CHOICE)
-    intro_title = models.TextField()
+    intro_title = models.TextField(null=True, blank=True)
     intro_content = models.TextField()
 
     def __str__(self):
