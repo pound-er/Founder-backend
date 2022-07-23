@@ -275,6 +275,22 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
     def get(self, request, pk):  # 상품의 pk
         reviews = Review.objects.filter(product_id=pk)
         serializer = ReviewSerializer(reviews, many=True)
+
+        star_rate = []
+        for star in range(5, 0, -1):
+            star_rate.append(Review.objects.filter(product_id=pk, star_rate=star).count())
+        star_rate_avg = Product.objects.get(pk=pk).star_rate_avg
+
+        res = {
+            "star_rate": star_rate,  # 별점 높은 순
+            "star_rate_avg": star_rate_avg,
+        }
+
+        Response({
+            "review": serializer.data,
+            "star_rate": res
+        }, status=status.HTTP_200_OK)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, pk):
@@ -329,17 +345,4 @@ class TypeProductMainDetailView(APIView):
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-class ReviewStarView(APIView):
-    def get(self, request, pk):
-        star_rate = []
-        for star in range(5, 0, -1):
-            star_rate.append(Review.objects.filter(product_id=pk, star_rate=star).count())
-        star_rate_avg = Product.objects.get(pk=pk).star_rate_avg
-
-        res = {
-            "star_rate": star_rate,  # 별점 높은 순
-            "star_rate_avg": star_rate_avg,
-        }
-        return Response(res, status=status.HTTP_200_OK)
 
