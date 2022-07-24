@@ -42,11 +42,11 @@ def get_type_detail(type_name):
     brand = get_products_brand_list(products)
 
     res = {
-            "type": type_info,
-            "type_detail": {
-                "product": product_serializer.data,
-                "brand": brand
-            }
+        "type": type_info,
+        "type_detail": {
+            "product": product_serializer.data,
+            "brand": brand
+        }
     }
 
     return res
@@ -92,13 +92,13 @@ class KaKaoSignInCallBackView(APIView):
 
         try:
             user = User.objects.get(email=kakao_email)
-            message = "Existing User : SignIn"   # 로그인
+            message = "Existing User : SignIn"  # 로그인
 
         except:
             user = User(email=kakao_email, nickname=kakao_nickname)
             user = user.save()
             user = User.objects.get(email=kakao_email)
-            message = "New User : SignUp"    # 회원가입 : 회원 정보 저장
+            message = "New User : SignUp"  # 회원가입 : 회원 정보 저장
 
         token = RefreshToken.for_user(user)
         refresh_token = str(token)
@@ -177,7 +177,6 @@ class CategoryDetailView(APIView):
 
 class Type4RecommendView(APIView):
     def get(self, request):
-    
         # 로그인 시 "맞춤 추천 Type" 정보 반환
         '''
         user = User.objects.get(pk=1)  # 데모데이터(admin)
@@ -189,7 +188,7 @@ class Type4RecommendView(APIView):
             type_arr.append(serializer.data)
         return Response(type_arr, status=status.HTTP_200_OK)
         '''
-        
+
         # 미 로그인 시 "식품 모두 다 / 스킨케어 팩 / 유산균 / 영양제 / 맞춤케어 영양제 팩" 정보 반환
         food_types = Type.objects.filter(category__category_name="Food")  # 식품 모두
         serializer = TypeSerializer(food_types, many=True)
@@ -289,29 +288,29 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
         form = ReviewForm(request.POST)
         if form.is_valid():
             review = form.save(commit=False)
-
             review.user = User.objects.get(pk=1)  # 데모데이터(admin)
 
-            if Review.objects.get(product_id=pk, user=review.user) is not None:
-                return Response(form.errors, status=status.HTTP_403_FORBIDDEN)
+            try:
+                review = Review.objects.get(product_id=pk, user=review.user)
+                return Response("후기는 한 번만 작성할 수 있습니다!", status=status.HTTP_403_FORBIDDEN)
+            except Review.DoesNotExist:
+                review.product = Product.objects.get(pk=pk)
+                review.review_main_img = request.data['review_main_img']
 
-            review.product = Product.objects.get(pk=pk)
-            review.review_main_img = request.data['review_main_img']
+                total_review = Review.objects.filter(product_id=pk).count()
+                star_rate = ((review.product.star_rate_avg * total_review) + review.star_rate) / (total_review + 1)
+                review.product.star_rate_avg = round(star_rate, 1)
+                review.product.save()
+                review.save()
 
-            total_review = Review.objects.filter(product_id=pk).count()
-            star_rate = ((review.product.star_rate_avg * total_review) + review.star_rate) / (total_review + 1)
-            review.product.star_rate_avg = round(star_rate, 1)
-            review.product.save()
-            review.save()
-
-            # 다중 이미지 처리
-            for img in request.FILES.getlist('reviewMedia'):
-                review_media = ReviewMedia()
-                review_media.review = review
-                review_media.review_img = img
-                review_media.save()
-            return Response("Created Successfully", status=status.HTTP_201_CREATED)
-        return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+                # 다중 이미지 처리
+                for img in request.FILES.getlist('reviewMedia'):
+                    review_media = ReviewMedia()
+                    review_media.review = review
+                    review_media.review_img = img
+                    review_media.save()
+                return Response("Created Successfully", status=status.HTTP_201_CREATED)
+            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MagazineView(APIView):
@@ -340,5 +339,3 @@ class TypeProductMainDetailView(APIView):
         products = Product.objects.filter(type=type.id, main_product_flag=True)
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-

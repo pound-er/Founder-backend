@@ -88,27 +88,15 @@ class Magazine(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     episode_num = models.IntegerField(null=True, blank=True)
     main_img = models.ImageField(upload_to=magazine_path, null=True, blank=True)
+    header_img = models.ImageField(upload_to=magazine_path, null=True, blank=True)
     magazine_type = models.CharField(max_length=20, choices=MAGAZINE_CHOICE)
-    intro_title = models.TextField()
     intro_content = models.TextField()
 
     def __str__(self):
         return '{}. {}'.format(self.id, self.title)
 
 
-class MagazineContent(models.Model):
-    magazine = models.ForeignKey(Magazine, on_delete=models.CASCADE, related_name='magazine_magazinecontent')
-
-    detail_title = models.CharField(max_length=100, null=True, blank=True)
-    detail_content = models.TextField(null=True, blank=True)
-    detail_img = models.ImageField(upload_to=magazine_path, blank=True, null=True)
-
-    def __str__(self):
-        return '[{}]'.format(self.id)
-
-
 class Brand(models.Model):
-    magazine_content = models.ForeignKey(MagazineContent, null=True, blank=True, on_delete=models.SET_NULL, related_name='magazinecontent_brand')
 
     brand_name = models.CharField(max_length=20)
     brand_logo = models.ImageField(upload_to=brand_path, null=True)
@@ -118,6 +106,18 @@ class Brand(models.Model):
 
     def __str__(self):
         return '{}. {}'.format(self.id, self.brand_name)
+
+
+class MagazineContent(models.Model):
+    magazine = models.ForeignKey(Magazine, on_delete=models.CASCADE, related_name='magazine_magazinecontent')
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='brand_magazinecontent')
+
+    detail_title = models.CharField(max_length=100, null=True, blank=True)
+    detail_content = models.TextField(null=True, blank=True)
+    detail_img = models.ImageField(upload_to=magazine_path, blank=True, null=True)
+
+    def __str__(self):
+        return '[{}]'.format(self.id)
 
 
 class Category(models.Model):
@@ -169,7 +169,7 @@ class Type(models.Model):
     type_desc = models.CharField(max_length=100)
     type_desc_detail = models.CharField(max_length=100)
     type_tag_arr = models.TextField()
-    type_img = models.ImageField(upload_to=type_path)
+    type_img = models.FileField(upload_to=type_path)
 
     def __str__(self):
         return '{}. {}'.format(self.id, self.type_name)
@@ -193,11 +193,9 @@ class Product(models.Model):
     delivery_cycle_main = models.CharField(max_length=20, choices=DELIVERY_CHOICE)
     delivery_cycle_detail = models.TextField()
     min_price = models.IntegerField()
-    max_price = models.IntegerField()
     star_rate_avg = models.FloatField(default=0.0)
-    volume = models.IntegerField()
-    pcs = models.IntegerField()
-    std_price = models.FloatField()
+    min_std_price = models.FloatField()
+    max_std_price = models.FloatField()
     discount_flag = models.BooleanField()
     purchase_link = models.URLField()
     main_product_flag = models.BooleanField()

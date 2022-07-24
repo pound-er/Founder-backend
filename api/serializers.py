@@ -9,7 +9,7 @@ class SurveyResultSerializer(serializers.ModelSerializer):
             'id',
             'user',
             'type',
-            'rec_result'
+            'rec_result',
         ]
 
 
@@ -60,11 +60,9 @@ class ProductSerializer(serializers.ModelSerializer):
             'delivery_cycle_main',
             'delivery_cycle_detail',
             'min_price',
-            'max_price',
             'star_rate_avg',
-            'volume',
-            'pcs',
-            'std_price',
+            'min_std_price',
+            'max_std_price',
             'discount_flag',
             'purchase_link',
             'main_product_flag',
@@ -88,7 +86,6 @@ class TypeSerializer(serializers.ModelSerializer):
             'type_desc_detail',
             'type_tag_arr',
             'type_img',
-            'order',
             'type_product',
             'type_surveyresult'
         ]
@@ -107,9 +104,23 @@ class CategorySerializer(serializers.ModelSerializer):
         ]
 
 
+class MagazineContentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MagazineContent
+        fields = [
+            'id',
+            'detail_title',
+            'detail_content',
+            'detail_img',
+            'magazinecontent_brand',
+        ]
+
+
 class BrandSerializer(serializers.ModelSerializer):
 
     brand_product = ProductSerializer(many=True)
+    brand_magazinecontent = MagazineContentSerializer(many=True)
 
     class Meta:
         model = Brand
@@ -121,21 +132,7 @@ class BrandSerializer(serializers.ModelSerializer):
             'brand_desc',
             'brand_bg_img',
             'brand_product',
-        ]
-
-
-class MagazineContentSerializer(serializers.ModelSerializer):
-
-    magazinecontent_brand = BrandSerializer(many=True)
-
-    class Meta:
-        model = MagazineContent
-        fields = [
-            'id',
-            'detail_title',
-            'detail_content',
-            'detail_img',
-            'magazinecontent_brand',
+            'brand_magazinecontent',
         ]
 
 
