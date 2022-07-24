@@ -279,12 +279,11 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
             "star_rate_avg": star_rate_avg,
         }
 
-        Response({
-            "review": serializer.data,
-            "star_rate": res
+        return Response({
+            "product_id": pk,
+            "star_rate": res,
+            "reviews": serializer.data,
         }, status=status.HTTP_200_OK)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, pk):
         form = ReviewForm(request.POST)
@@ -292,6 +291,10 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
             review = form.save(commit=False)
 
             review.user = User.objects.get(pk=1)  # 데모데이터(admin)
+
+            if Review.objects.get(product_id=pk, user=review.user) is not None:
+                return Response(form.errors, status=status.HTTP_403_FORBIDDEN)
+
             review.product = Product.objects.get(pk=pk)
             review.review_main_img = request.data['review_main_img']
 
