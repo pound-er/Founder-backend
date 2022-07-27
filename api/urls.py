@@ -33,8 +33,7 @@ urlpatterns = [
 
     path('type/recommend/', Type4RecommendView.as_view()),
     path('survey/', SurveyView.as_view()),
-    path('review/<int:pk>/', ReviewView.as_view()),
-    path('review/<int:pk>/star/', ReviewStarView.as_view()),
+    path('product/<int:pk>/review', ReviewView.as_view()),
     path('product/detail/<int:pk>/', ProductDetailView.as_view()),
 
 ]
