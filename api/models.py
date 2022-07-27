@@ -115,7 +115,7 @@ class Type(models.Model):
         ('shaver', '면도기'),
 
         ('lacto', '유산균'),
-        ('care-pack', '개인 맞춤 케어 영양제 팩(팩)'),
+        ('supplement-pack', '개인 맞춤 케어 영양제 팩(영양제)'),
         ('protein', '프로틴'),
     ]
 
