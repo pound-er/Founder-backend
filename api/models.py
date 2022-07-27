@@ -101,7 +101,7 @@ class Type(models.Model):
         ('bread', '빵'),
         ('chicken', '닭가슴살'),
 
-        ('milk', '우유/두유'),
+        ('milk', '우유'),
         ('shake', '쉐이크'),
         ('tea', '차'),
         ('coffee-beans', '원두커피'),
