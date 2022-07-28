@@ -26,6 +26,10 @@ def magazine_path(instance, filename):
     return f'magazine/{instance.title}/{filename}'
 
 
+def magazine_media_path(instance, filename):
+    return f'magazine-media/{instance.magazine.title}/{filename}'
+
+
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
@@ -233,7 +237,7 @@ class MagazineContent(models.Model):
 
     detail_title = models.CharField(max_length=100, null=True, blank=True)
     detail_content = models.TextField(null=True, blank=True)
-    detail_img = models.ImageField(upload_to=magazine_path, null=True, blank=True)
+    detail_img = models.ImageField(upload_to=magazine_media_path, null=True, blank=True)
 
     def __str__(self):
         return '[{}]'.format(self.id)
