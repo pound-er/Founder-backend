@@ -113,7 +113,7 @@ class BrandSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'brand_name',
-            'brand_name_eng'
+            'brand_name_eng',
             'brand_img_logo',
             'brand_link',
             'brand_desc',
@@ -142,7 +142,7 @@ class TypeSerializer(serializers.ModelSerializer):
             'type_img_footer',
             'type_brand',
             'type_product',
-            'type_surveyresult'
+            'type_surveyresult',
         ]
 
 
