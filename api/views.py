@@ -137,13 +137,29 @@ class UserDetailView(APIView):
 
 
 class ProductDetailView(APIView):
-    def get(self, request, pk):
+    def get_object(self, pk):
         try:
-            product = Product.objects.get(pk=pk)
-            serializer = ProductSerializer(product)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        product = self.get_object(pk)
+        product_serializer = ProductSerializer(product)
+
+        brand_id = product_serializer.data["brand"]
+
+        try:
+            brand = Brand.objects.get(pk=brand_id)
+            brand_serializer = BrandSerializer(brand).data
         except:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            brand_serializer = None
+
+        return Response({
+                "product": product_serializer.data,
+                "brand": brand_serializer,
+
+        }, status=status.HTTP_200_OK)
 
 
 class TypeDetailView(APIView):
