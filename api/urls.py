@@ -18,6 +18,9 @@ urlpatterns = [
     # User
     path('user', UserDetailView.as_view()),
 
+    # Product
+    path('product/<int:pk>', ProductDetailView.as_view()),
+
     # Type
     path('type/<str:type_name>', TypeDetailView.as_view()),
 
@@ -34,6 +37,5 @@ urlpatterns = [
     path('type/recommend/', Type4RecommendView.as_view()),
     path('survey/', SurveyView.as_view()),
     path('product/<int:pk>/review', ReviewView.as_view()),
-    path('product/detail/<int:pk>/', ProductDetailView.as_view()),
 
 ]
