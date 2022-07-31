@@ -268,6 +268,10 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
         reviews = Review.objects.filter(product_id=pk)
         serializer = ReviewSerializer(reviews, many=True)
 
+        for review in serializer.data:  # 각 리뷰 정보마다 닉네임 추가
+            author = User.objects.filter(pk=review["user"]).values("nickname")
+            review.update({"nickname": author[0]['nickname']})
+
         star_rate = []
         for star in range(5, 0, -1):
             star_rate.append(Review.objects.filter(product_id=pk, star_rate=star).count())
