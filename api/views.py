@@ -14,44 +14,6 @@ from .forms import ReviewForm
 import requests
 
 
-# 상품들의 브랜드 정보(중복 제거)
-def get_products_brand_list(products):
-    products = products.values('brand')
-    brand_arr = []
-
-    for idx in products:
-        brand = Brand.objects.get(pk=idx['brand'])
-        serializer = BrandSerializer(brand)
-        brand_arr.append(serializer.data)
-
-    brand_list = list({brand_info['id']: brand_info for brand_info in brand_arr}.values())
-    return brand_list
-
-
-# 타입 상세 정보
-def get_type_detail(type_name):
-    if type_name == 'curation':
-        type_info = type_name
-        products = Product.objects.filter(default_rec_flag=True)
-    else:
-        type = Type.objects.get(type_name=type_name)
-        type_info = TypeSerializer(type).data
-        products = Product.objects.filter(type=type.id)
-
-    product_serializer = ProductSerializer(products, many=True)
-    brand = get_products_brand_list(products)
-
-    res = {
-        "type": type_info,
-        "type_detail": {
-            "product": product_serializer.data,
-            "brand": brand
-        }
-    }
-
-    return res
-
-
 # 카카오 회원가입+로그인
 class KakaoSignInView(APIView):
     def get(self, request):
@@ -162,33 +124,18 @@ class ProductDetailView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-class TypeDetailView(APIView):
-    def get(self, request, type_name):
-        return Response(
-            get_type_detail(type_name),
-            status=status.HTTP_200_OK
-        )
-
-
 class CategoryDetailView(APIView):
-    def get_type_detail(self, types):
-        type_detail_arr = []
-
-        for name in types:
-            type_detail = get_type_detail(name["type_name"])
-            type_detail_arr.append(type_detail)
-        return type_detail_arr
+    def get_object(self, category_name):
+        try:
+            return Category.objects.get(category_name=category_name)
+        except Category.DoesNotExist:
+            raise Http404
 
     def get(self, request, category_name):
-        category = Category.objects.get(category_name=category_name)
-        types = Type.objects.filter(category__category_name=category_name).values('type_name')
-
+        category = self.get_object(category_name)
         serializer = CategorySerializer(category)
-        types_detail = self.get_type_detail(types)
-        return Response({
-            "category": serializer.data["category_name"],
-            "category_detail": types_detail
-        }, status=status.HTTP_200_OK)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class Type4RecommendView(APIView):
@@ -350,12 +297,4 @@ class MagazineDetailView(APIView):
     def get(self, request, magazine_type, pk):
         magazine = self.get_object(magazine_type, pk)
         serializer = MagazineSerializer(magazine)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class TypeProductMainDetailView(APIView):
-    def get(self, request, type_name):
-        type = Type.objects.get(type_name=type_name)
-        products = Product.objects.filter(type=type.id, main_product_flag=True)
-        serializer = ProductSerializer(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -128,7 +128,6 @@ class TypeSerializer(serializers.ModelSerializer):
 
     type_brand = BrandSerializer(many=True)
     type_product = ProductSerializer(many=True)
-    type_surveyresult = SurveyResultSerializer(many=True)
 
     class Meta:
         model = Type
@@ -142,7 +141,6 @@ class TypeSerializer(serializers.ModelSerializer):
             'type_img_footer',
             'type_brand',
             'type_product',
-            'type_surveyresult'
         ]
 
 
