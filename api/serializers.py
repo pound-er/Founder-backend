@@ -20,9 +20,22 @@ class MagazineContentSerializer(serializers.ModelSerializer):
         model = MagazineContent
         fields = [
             'id',
+            'brand',
             'detail_title',
             'detail_content',
             'detail_img',
+        ]
+
+
+class MagazineMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Magazine
+        fields = [
+            'id',
+            'title',
+            'tag_arr',
+            'intro',
+            'img_main',
         ]
 
 
@@ -79,7 +92,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
 
-    product_review = ReviewSerializer(many=True)
+    # product_review = ReviewSerializer(many=True)
 
     class Meta:
         model = Product
@@ -99,14 +112,14 @@ class ProductSerializer(serializers.ModelSerializer):
             'max_std_price',
             'star_rate_avg',
             'purchase_link',
-            'product_review',
+            # 'product_review',
         ]
 
 
 class BrandSerializer(serializers.ModelSerializer):
 
-    brand_product = ProductSerializer(many=True)
-    brand_magazinecontent = MagazineContentSerializer(many=True)
+    # brand_product = ProductSerializer(many=True)
+    # brand_magazinecontent = MagazineContentSerializer(many=True)
 
     class Meta:
         model = Brand
@@ -119,8 +132,8 @@ class BrandSerializer(serializers.ModelSerializer):
             'brand_desc',
             'brand_img_bg',
             'curation',
-            'brand_product',
-            'brand_magazinecontent',
+            # 'brand_product',
+            # 'brand_magazinecontent',
         ]
 
 
@@ -128,7 +141,6 @@ class TypeSerializer(serializers.ModelSerializer):
 
     type_brand = BrandSerializer(many=True)
     type_product = ProductSerializer(many=True)
-    type_surveyresult = SurveyResultSerializer(many=True)
 
     class Meta:
         model = Type
@@ -142,7 +154,6 @@ class TypeSerializer(serializers.ModelSerializer):
             'type_img_footer',
             'type_brand',
             'type_product',
-            'type_surveyresult',
         ]
 
 
