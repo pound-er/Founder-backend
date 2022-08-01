@@ -29,7 +29,7 @@ urlpatterns = [
 
     path('brand/<int:pk>/', BrandDetailView.as_view()),
 
-    path('magazine/<str:magazine_type>/', MagazineView.as_view()),
+    path('magazine', MagazineView.as_view()),
     path('magazine/<int:pk>', MagazineDetailView.as_view()),
 
     path('type/<str:type_name>/product/main/', TypeProductMainDetailView.as_view()),

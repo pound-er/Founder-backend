@@ -334,10 +334,17 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
 
 
 class MagazineView(APIView):
-    def get(self, request, magazine_type):
-        magazines = Magazine.objects.filter(magazine_type=magazine_type)
-        serializer = MagazineSerializer(magazines, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get(self, request):
+        founder_story = Magazine.objects.filter(magazine_type="founder-story")
+        story_serializer = MagazineMiniSerializer(founder_story, many=True)
+
+        brand_curation = Magazine.objects.filter(magazine_type="brand-curation")
+        curation_serializer = MagazineMiniSerializer(brand_curation, many=True)
+
+        return Response({
+            "founder-story": story_serializer.data,
+            "brand_curation": curation_serializer.data,
+        }, status=status.HTTP_200_OK)
 
 
 class MagazineDetailView(APIView):
