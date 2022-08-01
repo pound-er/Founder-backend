@@ -170,6 +170,8 @@ class RecommendView(APIView):
 
             for idx in data:
                 types = Type.objects.get(pk=idx['type'])
+                serializer = TypeSerializer(types)
+                type_arr.append(serializer.data)
 
         except: # 미 로그인 시
             food_types = Type.objects.filter(category__category_name="food")  # 식품 모두
@@ -181,9 +183,9 @@ class RecommendView(APIView):
 
             for idx in data:
                 types = Type.objects.get(type_name=idx)
+                serializer = TypeSerializer(types)
+                type_arr.append(serializer.data)
 
-        serializer = TypeSerializer(types)
-        type_arr.append(serializer.data)
         return Response(type_arr, status=status.HTTP_200_OK)
 
 
