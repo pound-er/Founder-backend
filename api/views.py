@@ -309,7 +309,7 @@ class MagazineView(APIView):
         brand_list = get_magazine_brand(daily_curation)
 
         return Response({
-            "founder-story": story_serializer.data,
+            "founder_story": story_serializer.data,
             "daily_curation": curation_serializer.data,
             "magazine_brand": brand_list,
         }, status=status.HTTP_200_OK)
