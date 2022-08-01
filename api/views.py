@@ -14,6 +14,24 @@ from .forms import ReviewForm
 import requests
 
 
+def get_magazine_brand(magazines):
+    brand_id = magazines.values('magazine_magazinecontent__brand')
+
+    brand_arr = []
+
+    for idx in brand_id:
+        try:
+            brand = Brand.objects.get(pk=idx['magazine_magazinecontent__brand'])
+            serializer = BrandSerializer(brand)
+            brand_arr.append(serializer.data)
+
+        except:
+            pass
+
+    brand_list = list({brand_info['id']: brand_info for brand_info in brand_arr}.values())
+    return brand_list
+
+
 # 카카오 회원가입+로그인
 class KakaoSignInView(APIView):
     def get(self, request):
@@ -285,12 +303,15 @@ class MagazineView(APIView):
         founder_story = Magazine.objects.filter(magazine_type="founder-story")
         story_serializer = MagazineMiniSerializer(founder_story, many=True)
 
-        brand_curation = Magazine.objects.filter(magazine_type="brand-curation")
-        curation_serializer = MagazineMiniSerializer(brand_curation, many=True)
+        daily_curation = Magazine.objects.filter(magazine_type="daily-curation")
+        curation_serializer = MagazineMiniSerializer(daily_curation, many=True)
+
+        brand_list = get_magazine_brand(daily_curation)
 
         return Response({
             "founder-story": story_serializer.data,
-            "brand_curation": curation_serializer.data,
+            "daily_curation": curation_serializer.data,
+            "magazine_brand": brand_list,
         }, status=status.HTTP_200_OK)
 
 
