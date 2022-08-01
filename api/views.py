@@ -171,24 +171,17 @@ class TypeDetailView(APIView):
 
 
 class CategoryDetailView(APIView):
-    def get_type_detail(self, types):
-        type_detail_arr = []
-
-        for name in types:
-            type_detail = get_type_detail(name["type_name"])
-            type_detail_arr.append(type_detail)
-        return type_detail_arr
+    def get_object(self, category_name):
+        try:
+            return Category.objects.get(category_name=category_name)
+        except Category.DoesNotExist:
+            raise Http404
 
     def get(self, request, category_name):
-        category = Category.objects.get(category_name=category_name)
-        types = Type.objects.filter(category__category_name=category_name).values('type_name')
-
+        category = self.get_object(category_name)
         serializer = CategorySerializer(category)
-        types_detail = self.get_type_detail(types)
-        return Response({
-            "category": serializer.data["category_name"],
-            "category_detail": types_detail
-        }, status=status.HTTP_200_OK)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class Type4RecommendView(APIView):
