@@ -5,6 +5,7 @@ from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .serializers import *
@@ -183,8 +184,11 @@ class Type4RecommendView(APIView):
 
 
 class SurveyView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def put(self, request):
-        user = User.objects.get(pk=1)  # 데모데이터(admin)
+
+        user = request.user
 
         # 기존의 설문 정보 삭제
         SurveyResult.objects.filter(user=user).delete()
