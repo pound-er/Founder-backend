@@ -288,13 +288,13 @@ class MagazineView(APIView):
 
 
 class MagazineDetailView(APIView):
-    def get_object(self, magazine_type, pk):
+    def get_object(self, pk):
         try:
-            return Magazine.objects.get(magazine_type=magazine_type, pk=pk)
+            return Magazine.objects.get(pk=pk)
         except Magazine.DoesNotExist:
             raise Http404
 
-    def get(self, request, magazine_type, pk):
-        magazine = self.get_object(magazine_type, pk)
+    def get(self, request, pk):
+        magazine = self.get_object(pk)
         serializer = MagazineSerializer(magazine)
         return Response(serializer.data, status=status.HTTP_200_OK)

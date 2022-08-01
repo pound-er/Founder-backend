@@ -20,6 +20,7 @@ class MagazineContentSerializer(serializers.ModelSerializer):
         model = MagazineContent
         fields = [
             'id',
+            'brand',
             'detail_title',
             'detail_content',
             'detail_img',
