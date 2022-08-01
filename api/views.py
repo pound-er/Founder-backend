@@ -156,29 +156,34 @@ class CategoryDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class Type4RecommendView(APIView):
+class RecommendView(APIView):
     def get(self, request):
-        # 로그인 시 "맞춤 추천 Type" 정보 반환
-        '''
-        user = User.objects.get(pk=1)  # 데모데이터(admin)
-        data = SurveyResult.objects.filter(user=user).values('type')
-        type_arr = []
-        for idx in data:
-            types = Type.objects.get(pk=idx['type'])
-            serializer = TypeSerializer(types)
-            type_arr.append(serializer.data)
-        return Response(type_arr, status=status.HTTP_200_OK)
-        '''
 
-        # 미 로그인 시 "식품 모두 다 / 스킨케어 팩 / 유산균 / 영양제 / 맞춤케어 영양제 팩" 정보 반환
-        food_types = Type.objects.filter(category__category_name="Food")  # 식품 모두
-        serializer = TypeSerializer(food_types, many=True)
-        type_arr = serializer.data
-        data = ["SkinCarePack", "Lacto", "Supplement", "CarePack"]  # 스킨케어 팩, 유산균, 영양제, 맞춤케어 영양제 팩
-        for idx in data:
-            types = Type.objects.get(type_name=idx)
-            serializer = TypeSerializer(types)
-            type_arr.append(serializer.data)
+        try:    # 로그인 시
+            if request.user.set_curation:
+                curation = Brand.objects.filter(curation=True)
+                type_arr = {"curation": curation.data}
+            else:
+                pass
+
+            data = SurveyResult.objects.filter(user=request.user).value('type')
+
+            for idx in data:
+                types = Type.objects.get(pk=idx['type'])
+
+        except: # 미 로그인 시
+            food_types = Type.objects.filter(category__category_name="food")  # 식품 모두
+            serializer = TypeSerializer(food_types, many=True)
+
+            type_arr = serializer.data
+
+            data = ["pack", "lacto", "supplement-pack"]  # 스킨케어팩(팩), 유산균, 개인 맞춤 케어 영양제 팩(영양제)
+
+            for idx in data:
+                types = Type.objects.get(type_name=idx)
+
+        serializer = TypeSerializer(types)
+        type_arr.append(serializer.data)
         return Response(type_arr, status=status.HTTP_200_OK)
 
 
