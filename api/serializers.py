@@ -27,6 +27,18 @@ class MagazineContentSerializer(serializers.ModelSerializer):
         ]
 
 
+class MagazineMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Magazine
+        fields = [
+            'id',
+            'title',
+            'tag_arr',
+            'intro',
+            'img_main',
+        ]
+
+
 class MagazineSerializer(serializers.ModelSerializer):
 
     magazine_magazinecontent = MagazineContentSerializer(many=True, read_only=True)
