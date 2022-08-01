@@ -101,6 +101,8 @@ class KaKaoSignInCallBackView(APIView):
 
 
 class UserDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
 
         cur_user = request.user
