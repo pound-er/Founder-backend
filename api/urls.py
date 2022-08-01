@@ -21,18 +21,21 @@ urlpatterns = [
     # Recommend
     path('recommend', RecommendView.as_view()),
 
+    # Survey
+    path('survey', SurveyView.as_view()),
+
     # Product
     path('product/<int:pk>', ProductDetailView.as_view()),
+    path('product/<int:pk>/review', ReviewView.as_view()),
 
     # Category
     path('category/<str:category_name>', CategoryDetailView.as_view()),
 
+    # Brand
     path('brand/<int:pk>/', BrandDetailView.as_view()),
 
+    # Magazine
     path('magazine', MagazineView.as_view()),
     path('magazine/<int:pk>', MagazineDetailView.as_view()),
-
-    path('survey/', SurveyView.as_view()),
-    path('product/<int:pk>/review', ReviewView.as_view()),
 
 ]
