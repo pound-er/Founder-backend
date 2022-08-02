@@ -143,6 +143,7 @@ class Brand(models.Model):
     brand_img_logo = models.ImageField(upload_to=brand_path)
     brand_link = models.URLField()
     brand_desc = models.TextField()
+    brand_desc_detail = models.TextField()
     brand_img_bg = models.ImageField(upload_to=brand_path)
     curation = models.BooleanField(default=False)
 
@@ -188,13 +189,13 @@ class Review(models.Model):
         (1, 1),
     ]
 
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_review')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_review')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_review', blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_review', blank=True)
 
     star_rate = models.IntegerField(choices=RATE_CHOICE)
     review_tag_arr = models.TextField(null=True, blank=True)
     review_text = models.TextField(null=True, blank=True)
-    review_img_main = models.ImageField(upload_to=review_path)
+    review_img_main = models.ImageField(upload_to=review_path, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

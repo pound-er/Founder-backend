@@ -291,20 +291,23 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
         }, status=status.HTTP_200_OK)
 
     def post(self, request, pk):
-        form = ReviewForm(request.POST)
-        if form.is_valid():
-            review = form.save(commit=False)
-            review.user = request.user
 
-            try:
-                review = Review.objects.get(product_id=pk, user=review.user)
-                return Response("후기는 한 번만 작성할 수 있습니다!", status=status.HTTP_403_FORBIDDEN)
-            except Review.DoesNotExist:
+        if Review.objects.filter(product_id=pk, user=request.user.id).exists():
+            return Response("후기는 한 번만 작성할 수 있습니다!", status=status.HTTP_403_FORBIDDEN)
+
+        else:
+
+            form = ReviewForm(request.POST)
+
+            if form.is_valid():
+                review = form.save(commit=False)
+                review.user = request.user
                 review.product = Product.objects.get(pk=pk)
-                review.review_main_img = request.data['review_main_img']
+                review.review_img_main = request.data['review_img_main']
 
                 total_review = Review.objects.filter(product_id=pk).count()
                 star_rate = ((review.product.star_rate_avg * total_review) + review.star_rate) / (total_review + 1)
+
                 review.product.star_rate_avg = round(star_rate, 1)
                 review.product.save()
                 review.save()
@@ -317,7 +320,7 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
                     review_media.save()
                 return Response("Created Successfully", status=status.HTTP_201_CREATED)
 
-        return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MagazineView(APIView):
