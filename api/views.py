@@ -303,6 +303,7 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
                 review = form.save(commit=False)
                 review.user = request.user
                 review.product = Product.objects.get(pk=pk)
+                review.review_img_main = request.data['review_img_main']
 
                 total_review = Review.objects.filter(product_id=pk).count()
                 star_rate = ((review.product.star_rate_avg * total_review) + review.star_rate) / (total_review + 1)
