@@ -28,6 +28,7 @@ class MagazineContentSerializer(serializers.ModelSerializer):
 
 
 class MagazineMiniSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Magazine
         fields = [
@@ -92,8 +93,6 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
 
-    # product_review = ReviewSerializer(many=True)
-
     class Meta:
         model = Product
         fields = [
@@ -112,14 +111,10 @@ class ProductSerializer(serializers.ModelSerializer):
             'max_std_price',
             'star_rate_avg',
             'purchase_link',
-            # 'product_review',
         ]
 
 
 class BrandSerializer(serializers.ModelSerializer):
-
-    # brand_product = ProductSerializer(many=True)
-    # brand_magazinecontent = MagazineContentSerializer(many=True)
 
     class Meta:
         model = Brand
@@ -130,10 +125,9 @@ class BrandSerializer(serializers.ModelSerializer):
             'brand_img_logo',
             'brand_link',
             'brand_desc',
+            'brand_desc_detail',
             'brand_img_bg',
             'curation',
-            # 'brand_product',
-            # 'brand_magazinecontent',
         ]
 
 
