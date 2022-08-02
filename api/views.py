@@ -162,32 +162,38 @@ class CategoryDetailView(APIView):
 class RecommendView(APIView):
     def get(self, request):
 
-        try:    # 로그인 시
+        try:        # 로그인 시
             if request.user.set_curation:
                 curation = Brand.objects.filter(curation=True)
-                type_arr = {"curation": curation.data}
+                curation_data = BrandSerializer(curation, many=True).data
             else:
-                pass
+                curation_data = None
 
-            data = SurveyResult.objects.filter(user=request.user).value('type')
+            type_arr = {
+                "curation": curation_data,      # 큐레이션 브랜드
+                "rec_type": []
+            }
+
+            data = SurveyResult.objects.filter(user=request.user.id).values('type')
 
             for idx in data:
                 types = Type.objects.get(pk=idx['type'])
                 serializer = TypeSerializer(types)
-                type_arr.append(serializer.data)
+                type_arr["rec_type"].append(serializer.data)
 
-        except: # 미 로그인 시
+        except:     # 미 로그인 시
             food_types = Type.objects.filter(category__category_name="food")  # 식품 모두
             serializer = TypeSerializer(food_types, many=True)
-
-            type_arr = serializer.data
+            type_arr = {
+                "rec_type": serializer.data
+            }
 
             data = ["pack", "lacto", "supplement-pack"]  # 스킨케어팩(팩), 유산균, 개인 맞춤 케어 영양제 팩(영양제)
 
             for idx in data:
                 types = Type.objects.get(type_name=idx)
                 serializer = TypeSerializer(types)
-                type_arr.append(serializer.data)
+                type_arr["rec_type"].append(serializer.data)
 
         return Response(type_arr, status=status.HTTP_200_OK)
 
