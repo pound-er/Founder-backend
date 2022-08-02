@@ -5,6 +5,7 @@ from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .serializers import *
@@ -100,6 +101,8 @@ class KaKaoSignInCallBackView(APIView):
 
 
 class UserDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
 
         cur_user = request.user
@@ -183,8 +186,11 @@ class Type4RecommendView(APIView):
 
 
 class SurveyView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def put(self, request):
-        user = User.objects.get(pk=1)  # 데모데이터(admin)
+
+        user = request.user
 
         # 기존의 설문 정보 삭제
         SurveyResult.objects.filter(user=user).delete()
@@ -245,6 +251,8 @@ class BrandDetailView(APIView):
 
 
 class ReviewView(APIView):  # 리뷰 전체 불러 오기
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
     def get(self, request, pk):  # 상품의 pk
         reviews = Review.objects.filter(product_id=pk)
         serializer = ReviewSerializer(reviews, many=True)
@@ -273,7 +281,7 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
         form = ReviewForm(request.POST)
         if form.is_valid():
             review = form.save(commit=False)
-            review.user = User.objects.get(pk=1)  # 데모데이터(admin)
+            review.user = request.user
 
             try:
                 review = Review.objects.get(product_id=pk, user=review.user)
@@ -295,7 +303,8 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
                     review_media.review_img = img
                     review_media.save()
                 return Response("Created Successfully", status=status.HTTP_201_CREATED)
-            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MagazineView(APIView):
