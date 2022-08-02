@@ -15,6 +15,7 @@ from .forms import ReviewForm
 import requests
 
 
+# 매거진 페이지 추천 브랜드 리스트
 def get_magazine_brand(magazines):
     brand_id = magazines.values('magazine_magazinecontent__brand')
 
@@ -100,6 +101,7 @@ class KaKaoSignInCallBackView(APIView):
         return res
 
 
+# 사용자 정보 불러오기
 class UserDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -119,85 +121,7 @@ class UserDetailView(APIView):
             }, status=status.HTTP_200_OK)
 
 
-class ProductDetailView(APIView):
-    def get_object(self, pk):
-        try:
-            return Product.objects.get(pk=pk)
-        except Product.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk):
-        product = self.get_object(pk)
-        product_serializer = ProductSerializer(product)
-
-        brand_id = product_serializer.data["brand"]
-
-        try:
-            brand = Brand.objects.get(pk=brand_id)
-            brand_serializer = BrandSerializer(brand).data
-        except:
-            brand_serializer = None
-
-        return Response({
-                "product": product_serializer.data,
-                "brand": brand_serializer,
-
-        }, status=status.HTTP_200_OK)
-
-
-class CategoryDetailView(APIView):
-    def get_object(self, category_name):
-        try:
-            return Category.objects.get(category_name=category_name)
-        except Category.DoesNotExist:
-            raise Http404
-
-    def get(self, request, category_name):
-        category = self.get_object(category_name)
-        serializer = CategorySerializer(category)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class RecommendView(APIView):
-    def get(self, request):
-
-        try:        # 로그인 시
-            if request.user.set_curation:
-                curation = Brand.objects.filter(curation=True)
-                curation_data = BrandSerializer(curation, many=True).data
-            else:
-                curation_data = None
-
-            type_arr = {
-                "curation": curation_data,      # 큐레이션 브랜드
-                "rec_type": []
-            }
-
-            data = SurveyResult.objects.filter(user=request.user.id).values('type')
-
-            for idx in data:
-                types = Type.objects.get(pk=idx['type'])
-                serializer = TypeSerializer(types)
-                type_arr["rec_type"].append(serializer.data)
-
-        except:     # 미 로그인 시
-            food_types = Type.objects.filter(category__category_name="food")  # 식품 모두
-            serializer = TypeSerializer(food_types, many=True)
-            type_arr = {
-                "rec_type": serializer.data
-            }
-
-            data = ["pack", "lacto", "supplement-pack"]  # 스킨케어팩(팩), 유산균, 개인 맞춤 케어 영양제 팩(영양제)
-
-            for idx in data:
-                types = Type.objects.get(type_name=idx)
-                serializer = TypeSerializer(types)
-                type_arr["rec_type"].append(serializer.data)
-
-        return Response(type_arr, status=status.HTTP_200_OK)
-
-
+# 설문조사
 class SurveyView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -250,6 +174,62 @@ class SurveyView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+# 추천 정보 불러오기
+class RecommendView(APIView):
+    def get(self, request):
+
+        try:        # 로그인 시
+            if request.user.set_curation:
+                curation = Brand.objects.filter(curation=True)
+                curation_data = BrandSerializer(curation, many=True).data
+            else:
+                curation_data = None
+
+            type_arr = {
+                "curation": curation_data,      # 큐레이션 브랜드
+                "rec_type": []
+            }
+
+            data = SurveyResult.objects.filter(user=request.user.id).values('type')
+
+            for idx in data:
+                types = Type.objects.get(pk=idx['type'])
+                serializer = TypeSerializer(types)
+                type_arr["rec_type"].append(serializer.data)
+
+        except:     # 미 로그인 시
+            food_types = Type.objects.filter(category__category_name="food")  # 식품 모두
+            serializer = TypeSerializer(food_types, many=True)
+            type_arr = {
+                "rec_type": serializer.data
+            }
+
+            data = ["pack", "lacto", "supplement-pack"]  # 스킨케어팩(팩), 유산균, 개인 맞춤 케어 영양제 팩(영양제)
+
+            for idx in data:
+                types = Type.objects.get(type_name=idx)
+                serializer = TypeSerializer(types)
+                type_arr["rec_type"].append(serializer.data)
+
+        return Response(type_arr, status=status.HTTP_200_OK)
+
+
+# 카테고리 상세 불러오기
+class CategoryDetailView(APIView):
+    def get_object(self, category_name):
+        try:
+            return Category.objects.get(category_name=category_name)
+        except Category.DoesNotExist:
+            raise Http404
+
+    def get(self, request, category_name):
+        category = self.get_object(category_name)
+        serializer = CategorySerializer(category)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# 브랜드 상세 불러오기
 class BrandDetailView(APIView):
     def get_object(self, pk):
         try:
@@ -263,9 +243,38 @@ class BrandDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class ReviewView(APIView):  # 리뷰 전체 불러 오기
+# 상품 상세 불러오기
+class ProductDetailView(APIView):
+    def get_object(self, pk):
+        try:
+            return Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        product = self.get_object(pk)
+        product_serializer = ProductSerializer(product)
+
+        brand_id = product_serializer.data["brand"]
+
+        try:
+            brand = Brand.objects.get(pk=brand_id)
+            brand_serializer = BrandSerializer(brand).data
+        except:
+            brand_serializer = None
+
+        return Response({
+                "product": product_serializer.data,
+                "brand": brand_serializer,
+
+        }, status=status.HTTP_200_OK)
+
+
+# 상품 후기
+class ReviewView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
+    # 상품 후기 불러오기
     def get(self, request, pk):  # 상품의 pk
         reviews = Review.objects.filter(product_id=pk)
         serializer = ReviewSerializer(reviews, many=True)
@@ -290,6 +299,7 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
             "reviews": serializer.data,
         }, status=status.HTTP_200_OK)
 
+    # 상품 후기 등록하기
     def post(self, request, pk):
 
         if Review.objects.filter(product_id=pk, user=request.user.id).exists():
@@ -323,6 +333,7 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
             return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# 매거진 전체 불러오기
 class MagazineView(APIView):
     def get(self, request):
         founder_story = Magazine.objects.filter(magazine_type="founder-story")
@@ -340,6 +351,7 @@ class MagazineView(APIView):
         }, status=status.HTTP_200_OK)
 
 
+# 매거진 상세 불러오기
 class MagazineDetailView(APIView):
     def get_object(self, pk):
         try:

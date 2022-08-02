@@ -8,12 +8,12 @@ app_name = 'api'
 urlpatterns = [
 
     # token
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    path('token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
+    path('token/verify', TokenVerifyView.as_view(), name='token_verify'),
 
     # Kakao
-    path('auth/kakao/signin/', KakaoSignInView.as_view()),
-    path('auth/kakao/signin/callback/', KaKaoSignInCallBackView.as_view()),
+    path('auth/kakao/signin', KakaoSignInView.as_view()),
+    path('auth/kakao/signin/callback', KaKaoSignInCallBackView.as_view()),
 
     # User
     path('user', UserDetailView.as_view()),
@@ -32,7 +32,7 @@ urlpatterns = [
     path('category/<str:category_name>', CategoryDetailView.as_view()),
 
     # Brand
-    path('brand/<int:pk>/', BrandDetailView.as_view()),
+    path('brand/<int:pk>', BrandDetailView.as_view()),
 
     # Magazine
     path('magazine', MagazineView.as_view()),
