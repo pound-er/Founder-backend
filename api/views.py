@@ -303,7 +303,8 @@ class ReviewView(APIView):  # 리뷰 전체 불러 오기
                     review_media.review_img = img
                     review_media.save()
                 return Response("Created Successfully", status=status.HTTP_201_CREATED)
-            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MagazineView(APIView):
