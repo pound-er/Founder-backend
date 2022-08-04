@@ -108,7 +108,7 @@ class KaKaoSignInCallBackView(APIView):
 
 class KakaoSignOutView(APIView):
 
-    def post(self, request):
+    def get(self, request):
 
         return redirect(
             'https://kapi.kakao.com/v1/user/logout', header={"Authorization": f"Bearer ${kakao_access_token}"}
