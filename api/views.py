@@ -134,7 +134,7 @@ class SurveyView(APIView):
         # 기존의 설문 정보 삭제
         SurveyResult.objects.filter(user=user).delete()
 
-        for each_json in request.data:
+        for each_json in request.data["answer"]:
 
             # 성별 문항
             if each_json['question_num'] == "0":
