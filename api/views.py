@@ -45,6 +45,9 @@ class KakaoSignInView(APIView):
         )
 
 
+kakao_access_token = ""
+
+
 # 카카오 회원가입+로그인 : 콜백
 class KaKaoSignInCallBackView(APIView):
     def get(self, request):
@@ -58,11 +61,11 @@ class KaKaoSignInCallBackView(APIView):
 
         kakao_token_api = "https://kauth.kakao.com/oauth/token"
         kakao_token_json = requests.post(kakao_token_api, data=create_data).json()
-        access_token = kakao_token_json.get('access_token')
+        kakao_access_token = kakao_token_json.get('access_token')
 
         kakao_user_api = 'https://kapi.kakao.com/v2/user/me'
         auth_header = {
-            "Authorization": f"Bearer ${access_token}"
+            "Authorization": f"Bearer ${kakao_access_token}"
         }
         user_info = requests.get(kakao_user_api, headers=auth_header).json()
 
@@ -105,12 +108,11 @@ class KaKaoSignInCallBackView(APIView):
 
 class KakaoSignOutView(APIView):
 
-    def get(self, request):
-        client_id = settings.KAKAO_REST_API_KEY
-        redirect_uri = settings.KAKAO_SIGNOUT_REDIRECT_URI
+    def post(self, request):
 
         return redirect(
-            f'https://kauth.kakao.com/oauth/logout?client_id={client_id}&logout_redirect_uri={redirect_uri}'
+            'https://kapi.kakao.com/v1/user/logout', header={"Authorization": f"Bearer ${kakao_access_token}"}
+
         )
 
 
