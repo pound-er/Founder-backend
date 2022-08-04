@@ -98,7 +98,6 @@ class KaKaoSignInCallBackView(APIView):
             },
         })
 
-        res.set_cookie('access', access_token, httponly=True)
         res.set_cookie('refresh', refresh_token, httponly=True)
 
         return res
@@ -111,16 +110,16 @@ class SignOutView(APIView):
     def post(self, request):
 
         refresh = RefreshToken(request.COOKIES.get('refresh'))
-        refresh_info = jwt.decode(refresh, settings.SECRET_KEY, algorithms=settings.SIMPLE_JWT_ALGORITHM)
+        # refresh_info = jwt.decode(refresh, settings.SECRET_KEY, algorithms=settings.SIMPLE_JWT_ALGORITHM)
 
-        if refresh_info["user_id"] == request.user.id:
-            refresh.blacklist()
+        # if refresh_info["user_id"] == request.user.id:
+        refresh.blacklist()
 
-            res = Response({
-                "message": "Sign Out Finished"
-            })
+        res = Response({
+            "message": "Sign Out Finished"
+        })
 
-            res.delete_cookie('refresh')
+        res.delete_cookie('refresh')
 
         return res
 
