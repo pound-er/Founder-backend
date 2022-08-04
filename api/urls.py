@@ -14,8 +14,9 @@ urlpatterns = [
     # Kakao
     path('auth/kakao/signin', KakaoSignInView.as_view()),
     path('auth/kakao/signin/callback', KaKaoSignInCallBackView.as_view()),
-    # path('auth/kakao/signout', KakaoSignOutView.as_view()),
-    path('auth/kakao/signout/callback', KaKaoSignOutCallBackView.as_view()),
+
+    # SignOut
+    path('user/signout', SignOutView.as_view()),
 
     # User
     path('user', UserDetailView.as_view()),

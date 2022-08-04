@@ -12,7 +12,7 @@ from .serializers import *
 from .models import *
 from .forms import ReviewForm
 
-import requests
+import jwt, requests
 
 
 # 매거진 페이지 추천 브랜드 리스트
@@ -104,27 +104,23 @@ class KaKaoSignInCallBackView(APIView):
         return res
 
 
-# class KakaoSignOutView(APIView):
-#
-#     def get(self, request):
-#
-#         return redirect(
-#             'https://kapi.kakao.com/v1/user/logout', header={"Authorization": f"Bearer ${kakao_access_token}"}
-#
-#         )
-
-
-class KaKaoSignOutCallBackView(APIView):
+# 로그아웃
+class SignOutView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
+
         refresh = RefreshToken(request.COOKIES.get('refresh'))
-        refresh.blacklist()
+        refresh_info = jwt.decode(refresh, settings.SECRET_KEY, algorithms=settings.SIMPLE_JWT_ALGORITHM)
 
-        res = Response({
-            "message": "Sign Out Finished"
-        })
+        if refresh_info["user_id"] == request.user:
+            refresh.blacklist()
 
-        res.delete_cookie('refresh')
+            res = Response({
+                "message": "Sign Out Finished"
+            })
+
+            res.delete_cookie('refresh')
 
         return res
 
