@@ -117,14 +117,14 @@ class KakaoSignOutView(APIView):
 class KaKaoSignOutCallBackView(APIView):
 
     def get(self, request):
-        refresh = RefreshToken(request.COOKIES.get('jwt'))
+        refresh = RefreshToken(request.COOKIES.get('refresh'))
         refresh.blacklist()
 
         res = Response({
             "message": "Sign Out Finished"
         })
 
-        res.delete_cookie('jwt')
+        res.delete_cookie('refresh')
 
         return res
 
