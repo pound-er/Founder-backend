@@ -310,7 +310,7 @@ class ReviewView(APIView):
         for star in range(5, 0, -1):
             cnt = Review.objects.filter(product_id=pk, star_rate=star).count()
             star_rate.append(cnt)
-            star_rate_avg = star * cnt
+            star_rate_avg += star * cnt
 
         total_cnt = Review.objects.filter(product_id=pk).count()
         if total_cnt != 0:
