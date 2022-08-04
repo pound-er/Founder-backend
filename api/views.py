@@ -45,9 +45,6 @@ class KakaoSignInView(APIView):
         )
 
 
-kakao_access_token = ""
-
-
 # 카카오 회원가입+로그인 : 콜백
 class KaKaoSignInCallBackView(APIView):
     def get(self, request):
@@ -97,6 +94,7 @@ class KaKaoSignInCallBackView(APIView):
             "token": {
                 "access": access_token,
                 "refresh": refresh_token,
+                "kakao": kakao_access_token,
             },
         })
 
@@ -106,14 +104,14 @@ class KaKaoSignInCallBackView(APIView):
         return res
 
 
-class KakaoSignOutView(APIView):
-
-    def get(self, request):
-
-        return redirect(
-            'https://kapi.kakao.com/v1/user/logout', header={"Authorization": f"Bearer ${kakao_access_token}"}
-
-        )
+# class KakaoSignOutView(APIView):
+#
+#     def get(self, request):
+#
+#         return redirect(
+#             'https://kapi.kakao.com/v1/user/logout', header={"Authorization": f"Bearer ${kakao_access_token}"}
+#
+#         )
 
 
 class KaKaoSignOutCallBackView(APIView):
