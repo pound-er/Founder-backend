@@ -108,7 +108,6 @@ class SignOutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-
         refresh = RefreshToken(request.COOKIES.get('refresh'))
         # refresh_info = jwt.decode(refresh, settings.SECRET_KEY, algorithms=settings.SIMPLE_JWT_ALGORITHM)
 
@@ -201,7 +200,7 @@ class SurveyView(APIView):
 class RecommendView(APIView):
     def get(self, request):
 
-        try:        # 로그인 시
+        try:  # 로그인 시
             if request.user.set_curation:
                 curation = Brand.objects.filter(curation=True)
                 curation_data = BrandSerializer(curation, many=True).data
@@ -209,7 +208,7 @@ class RecommendView(APIView):
                 curation_data = None
 
             type_arr = {
-                "curation": curation_data,      # 큐레이션 브랜드
+                "curation": curation_data,  # 큐레이션 브랜드
                 "rec_type": []
             }
 
@@ -220,7 +219,7 @@ class RecommendView(APIView):
                 serializer = TypeSerializer(types)
                 type_arr["rec_type"].append(serializer.data)
 
-        except:     # 미 로그인 시
+        except:  # 미 로그인 시
             food_types = Type.objects.filter(category__category_name="food")  # 식품 모두
             serializer = TypeSerializer(food_types, many=True)
             type_arr = {
@@ -287,8 +286,8 @@ class ProductDetailView(APIView):
             brand_serializer = None
 
         return Response({
-                "product": product_serializer.data,
-                "brand": brand_serializer,
+            "product": product_serializer.data,
+            "brand": brand_serializer,
 
         }, status=status.HTTP_200_OK)
 
@@ -307,9 +306,19 @@ class ReviewView(APIView):
             review.update({"nickname": author[0]['nickname']})
 
         star_rate = []
+        star_rate_avg = 0.0
         for star in range(5, 0, -1):
-            star_rate.append(Review.objects.filter(product_id=pk, star_rate=star).count())
-        star_rate_avg = Product.objects.get(pk=pk).star_rate_avg
+            cnt = Review.objects.filter(product_id=pk, star_rate=star).count()
+            star_rate.append(cnt)
+            star_rate_avg = star * cnt
+
+        total_cnt = Review.objects.filter(product_id=pk).count()
+        if total_cnt != 0:
+            star_rate_avg /= total_cnt
+
+        product = Product.objects.get(pk=pk)
+        product.star_rate_avg = star_rate_avg
+        product.save()
 
         res = {
             "star_rate": star_rate,  # 별점 높은 순
