@@ -113,7 +113,7 @@ class SignOutView(APIView):
         refresh = RefreshToken(request.COOKIES.get('refresh'))
         refresh_info = jwt.decode(refresh, settings.SECRET_KEY, algorithms=settings.SIMPLE_JWT_ALGORITHM)
 
-        if refresh_info["user_id"] == request.user:
+        if refresh_info["user_id"] == request.user.id:
             refresh.blacklist()
 
             res = Response({
