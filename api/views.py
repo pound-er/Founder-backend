@@ -12,7 +12,7 @@ from .serializers import *
 from .models import *
 from .forms import ReviewForm
 
-import requests
+import jwt, requests
 
 
 # 매거진 페이지 추천 브랜드 리스트
@@ -58,11 +58,11 @@ class KaKaoSignInCallBackView(APIView):
 
         kakao_token_api = "https://kauth.kakao.com/oauth/token"
         kakao_token_json = requests.post(kakao_token_api, data=create_data).json()
-        access_token = kakao_token_json.get('access_token')
+        kakao_access_token = kakao_token_json.get('access_token')
 
         kakao_user_api = 'https://kapi.kakao.com/v2/user/me'
         auth_header = {
-            "Authorization": f"Bearer ${access_token}"
+            "Authorization": f"Bearer ${kakao_access_token}"
         }
         user_info = requests.get(kakao_user_api, headers=auth_header).json()
 
@@ -94,11 +94,33 @@ class KaKaoSignInCallBackView(APIView):
             "token": {
                 "access": access_token,
                 "refresh": refresh_token,
+                "kakao": kakao_access_token,
             },
         })
 
         res.set_cookie('access', access_token, httponly=True)
         res.set_cookie('refresh', refresh_token, httponly=True)
+
+        return res
+
+
+# 로그아웃
+class SignOutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+
+        refresh = RefreshToken(request.COOKIES.get('refresh'))
+        refresh_info = jwt.decode(refresh, settings.SECRET_KEY, algorithms=settings.SIMPLE_JWT_ALGORITHM)
+
+        if refresh_info["user_id"] == request.user.id:
+            refresh.blacklist()
+
+            res = Response({
+                "message": "Sign Out Finished"
+            })
+
+            res.delete_cookie('refresh')
 
         return res
 
