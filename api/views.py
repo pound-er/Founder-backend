@@ -108,7 +108,7 @@ class KaKaoSignInCallBackView(APIView):
 class SignOutView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def post(self, request):
 
         refresh = RefreshToken(request.COOKIES.get('refresh'))
         refresh_info = jwt.decode(refresh, settings.SECRET_KEY, algorithms=settings.SIMPLE_JWT_ALGORITHM)
