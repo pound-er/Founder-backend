@@ -201,23 +201,28 @@ class RecommendView(APIView):
     def get(self, request):
 
         try:  # 로그인 시
-            if request.user.set_curation:
-                curation = Brand.objects.filter(curation=True)
-                curation_data = BrandSerializer(curation, many=True).data
+            if SurveyResult.objects.filter(user=request.user.id).exists():
+
+                if request.user.set_curation:
+                    curation = Brand.objects.filter(curation=True)
+                    curation_data = BrandSerializer(curation, many=True).data
+                else:
+                    curation_data = None
+
+                type_arr = {
+                    "curation": curation_data,  # 큐레이션 브랜드
+                    "rec_type": []
+                }
+
+                data = SurveyResult.objects.filter(user=request.user.id).values('type')
+
+                for idx in data:
+                    types = Type.objects.get(pk=idx['type'])
+                    serializer = TypeSerializer(types)
+                    type_arr["rec_type"].append(serializer.data)
+
             else:
-                curation_data = None
-
-            type_arr = {
-                "curation": curation_data,  # 큐레이션 브랜드
-                "rec_type": []
-            }
-
-            data = SurveyResult.objects.filter(user=request.user.id).values('type')
-
-            for idx in data:
-                types = Type.objects.get(pk=idx['type'])
-                serializer = TypeSerializer(types)
-                type_arr["rec_type"].append(serializer.data)
+                raise Exception('설문 참여 결과가 없습니다.')
 
         except:  # 미 로그인 시
             food_types = Type.objects.filter(category__category_name="food")  # 식품 모두
