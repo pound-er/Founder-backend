@@ -113,7 +113,10 @@ class SignOutView(APIView):
     def post(self, request):
 
         try:
-            kakao_token_logout = requests.post('https://kapi.kakao.com/v1/user/logout', header={"Authorization": f'Bearer ${kakao_access_token}'})
+            kakao_token_logout = requests.post(
+                'https://kapi.kakao.com/v1/user/logout',
+                header={"Authorization": f'Bearer {kakao_access_token}'}
+            )
 
             refresh = RefreshToken(request.COOKIES.get('refresh'))
             # refresh_info = jwt.decode(refresh, settings.SECRET_KEY, algorithms=settings.SIMPLE_JWT_ALGORITHM)
