@@ -107,7 +107,7 @@ class KaKaoSignInCallBackView(APIView):
 
 
 # 로그아웃
-class SignOutView(APIView):
+class KakaoSignOutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
