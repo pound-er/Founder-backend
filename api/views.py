@@ -47,7 +47,7 @@ class KakaoSignInView(APIView):
 
 # 카카오 회원가입+로그인 : 콜백
 class KaKaoSignInCallBackView(APIView):
-    def get(self, request):
+    def post(self, request):
 
         create_data = {
             'grant_type': 'authorization_code',
