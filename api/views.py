@@ -34,6 +34,9 @@ def get_magazine_brand(magazines):
     return brand_list
 
 
+kakao_access_token = ""
+
+
 # 카카오 회원가입+로그인
 class KakaoSignInView(APIView):
     def get(self, request):
@@ -98,29 +101,41 @@ class KaKaoSignInCallBackView(APIView):
             },
         })
 
-        res.set_cookie('refresh', refresh_token, httponly=True)
+        res.set_cookie('refresh', str(refresh_token), httponly=True)
 
         return res
 
 
 # 로그아웃
-class SignOutView(APIView):
+class KakaoSignOutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        refresh = RefreshToken(request.COOKIES.get('refresh'))
-        # refresh_info = jwt.decode(refresh, settings.SECRET_KEY, algorithms=settings.SIMPLE_JWT_ALGORITHM)
 
-        # if refresh_info["user_id"] == request.user.id:
-        refresh.blacklist()
+        try:
+            kakao_token_logout = requests.post(
+                'https://kapi.kakao.com/v1/user/logout',
+                headers={"Authorization": f'Bearer {kakao_access_token}'}
+            )
 
-        res = Response({
-            "message": "Sign Out Finished"
-        })
+            refresh = request.COOKIES.get('refresh')
+            refresh_info = jwt.decode(refresh, settings.SECRET_KEY, algorithms=settings.SIMPLE_JWT_ALGORITHM)
 
-        res.delete_cookie('refresh')
+            if refresh_info["user_id"] == request.user.id:
+                RefreshToken(refresh).blacklist()
 
-        return res
+                res = Response({
+                    "message": "Sign Out Finished"
+                })
+
+                res.delete_cookie('refresh')
+
+            return res
+
+        except:
+            return Response({
+                "message": "Sign Out Failed"
+            })
 
 
 # 사용자 정보 불러오기
