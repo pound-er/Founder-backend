@@ -101,7 +101,7 @@ class KaKaoSignInCallBackView(APIView):
             },
         })
 
-        res.set_cookie('refresh', refresh_token, httponly=True)
+        res.set_cookie('refresh', str(refresh_token), httponly=True)
 
         return res
 
@@ -115,20 +115,20 @@ class KakaoSignOutView(APIView):
         try:
             kakao_token_logout = requests.post(
                 'https://kapi.kakao.com/v1/user/logout',
-                header={"Authorization": f'Bearer {kakao_access_token}'}
+                headers={"Authorization": f'Bearer {kakao_access_token}'}
             )
 
-            refresh = RefreshToken(request.COOKIES.get('refresh'))
-            # refresh_info = jwt.decode(refresh, settings.SECRET_KEY, algorithms=settings.SIMPLE_JWT_ALGORITHM)
+            refresh = request.COOKIES.get('refresh')
+            refresh_info = jwt.decode(refresh, settings.SECRET_KEY, algorithms=settings.SIMPLE_JWT_ALGORITHM)
 
-            # if refresh_info["user_id"] == request.user.id:
-            refresh.blacklist()
+            if refresh_info["user_id"] == request.user.id:
+                RefreshToken(refresh).blacklist()
 
-            res = Response({
-                "message": "Sign Out Finished"
-            })
+                res = Response({
+                    "message": "Sign Out Finished"
+                })
 
-            res.delete_cookie('refresh')
+                res.delete_cookie('refresh')
 
             return res
 
