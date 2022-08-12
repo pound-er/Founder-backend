@@ -34,9 +34,6 @@ def get_magazine_brand(magazines):
     return brand_list
 
 
-kakao_access_token = ""
-
-
 # 카카오 회원가입+로그인
 class KakaoSignInView(APIView):
     def get(self, request):
@@ -102,6 +99,7 @@ class KaKaoSignInCallBackView(APIView):
         })
 
         res.set_cookie('refresh', str(refresh_token), httponly=True)
+        res.set_cookie('kakao', kakao_access_token, httponly=True)
 
         return res
 
@@ -113,9 +111,11 @@ class KakaoSignOutView(APIView):
     def post(self, request):
 
         try:
+            kakao = request.COOKIES.get('kakao')
+
             kakao_token_logout = requests.post(
                 'https://kapi.kakao.com/v1/user/logout',
-                headers={"Authorization": f'Bearer {kakao_access_token}'}
+                headers={"Authorization": f'Bearer {kakao}'}
             )
 
             refresh = request.COOKIES.get('refresh')
@@ -129,6 +129,7 @@ class KakaoSignOutView(APIView):
                 })
 
                 res.delete_cookie('refresh')
+                res.delete_cookie('kakao')
 
             return res
 
